@@ -1,0 +1,70 @@
+/**
+ * @fileoverview Light (default) theme token overrides for the Praescio
+ * autocomplete component.
+ *
+ * These values are identical to the :root defaults in variables.css. Declaring
+ * them explicitly under the light-theme selector lets consumers lock the
+ * component to the light palette even when the user's OS preference is dark —
+ * preventing the auto-dark override in themes/dark.css from activating.
+ *
+ * Scoping: tokens are applied directly to .praescio__panel (not an ancestor)
+ * so CSS custom properties cascade to all descendant elements without leaking
+ * to the surrounding page.
+ *
+ * Two selector forms cover both placement strategies:
+ *   1. :is([data-praescio-theme="light"]) .praescio__panel  — panel is a descendant
+ *      of a light-themed wrapper (e.g. the component is inside an app shell)
+ *   2. .praescio__panel[data-praescio-theme="light"]  — attribute set directly on
+ *      the panel element via the `container` option
+ *
+ * Usage:
+ *   <div data-praescio-theme="light">
+ *     <!-- Praescio input — panel renders in light mode regardless of OS setting -->
+ *   </div>
+ *
+ * @author Aditya B
+ */
+
+/* ── Explicit light theme ────────────────────────────────────────────────── */
+/**
+ * Tokens are set on .praescio__panel so they are scoped to the component root.
+ * CSS custom properties inherit to all descendants from there.
+ */
+:is([data-praescio-theme="light"]) .praescio__panel,
+.praescio__panel[data-praescio-theme="light"] {
+  /* Panel / component background — pure white */
+  --praescio-bg: #fff;
+
+  /* Panel border */
+  --praescio-border-color: #d1d5db;
+
+  /* Item hover background — very light gray */
+  --praescio-item-hover-bg: #f3f4f6;
+
+  /* Item active/selected background — light blue tint */
+  --praescio-item-active-bg: #eff6ff;
+
+  /* Item active/selected border accent — blue-500 */
+  --praescio-item-active-border: #3b82f6;
+
+  /* Highlight match color — blue-700, 4.58:1 contrast on white */
+  --praescio-highlight-color: #1d4ed8;
+
+  /* Group label and description muted color — gray-500 */
+  --praescio-group-label-color: #6b7280;
+  --praescio-description-color: #6b7280;
+
+  /* Divider line — gray-200 */
+  --praescio-divider-color: #e5e7eb;
+
+  /* Badge chip — light gray background, dark gray text */
+  --praescio-badge-bg: #f3f4f6;
+  --praescio-badge-color: #374151;
+
+  /* Slot (loading/empty) text — gray-400 */
+  --praescio-slot-color: #9ca3af;
+
+  /* Error state — red-700 on red-50 */
+  --praescio-error-color: #b91c1c;
+  --praescio-error-bg: #fef2f2;
+}

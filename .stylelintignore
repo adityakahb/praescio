@@ -1,0 +1,8 @@
+# Stylelint ignore patterns
+# Generated and third-party directories are never linted.
+# Note: ESLint v9 flat config does not read .eslintignore; its equivalent
+# is the `ignores` array in eslint.config.js.
+
+node_modules/
+dist/
+coverage/

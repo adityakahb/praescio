@@ -1,0 +1,84 @@
+{
+  "name": "praescio",
+  "version": "1.0.0",
+  "description": "A modern, framework-agnostic TypeScript autocomplete/typeahead plugin",
+  "author": "Aditya B",
+  "license": "MIT",
+  "main": "dist/scripts/praescio.cjs.js",
+  "module": "dist/scripts/praescio.esm.js",
+  "types": "dist/praescio.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/scripts/praescio.esm.js",
+      "require": "./dist/scripts/praescio.cjs.js",
+      "types": "./dist/praescio.d.ts"
+    },
+    "./css": "./dist/styles/praescio.css",
+    "./connectors": {
+      "import": "./dist/scripts/praescio-connectors.esm.js",
+      "types": "./dist/praescio-connectors.d.ts"
+    }
+  },
+  "sideEffects": [
+    "dist/styles/*.css"
+  ],
+  "peerDependencies": {
+    "react": ">=17",
+    "vue": ">=3",
+    "@angular/core": ">=15",
+    "svelte": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "vue": { "optional": true },
+    "@angular/core": { "optional": true },
+    "svelte": { "optional": true }
+  },
+  "files": [
+    "dist",
+    "src/styles"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --configPlugin typescript",
+    "postbuild": "find dist/scripts -name '*.d.ts' -delete && find dist/scripts -type d -empty -delete",
+    "build:css": "postcss src/styles/praescio.css -o dist/styles/praescio.css && NODE_ENV=production postcss src/styles/praescio.css -o dist/styles/praescio.min.css",
+    "build:all": "npm run build && npm run build:css",
+    "build:connectors": "rollup -c rollup.config.ts --configPlugin typescript --filter connectors",
+    "dev": "rollup -c rollup.config.ts --configPlugin typescript --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"src/styles/**/*.css\" \"demos/**/*.html\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\" \"src/styles/**/*.css\"",
+    "lint": "eslint src tests --ext .ts",
+    "lint:css": "stylelint \"src/styles/**/*.css\"",
+    "lint:all": "npm run lint && npm run lint:css"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^20.11.0",
+    "typescript-eslint": "^8.0.0",
+    "@vitest/coverage-v8": "^1.2.1",
+    "autoprefixer": "^10.4.17",
+    "cssnano": "^6.1.0",
+    "eslint": "^9.0.0",
+    "globals": "^14.0.0",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.4.35",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.0.0",
+    "prettier": "^3.2.0",
+    "rollup": "^4.9.6",
+    "rollup-plugin-dts": "^6.1.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
+  }
+}
