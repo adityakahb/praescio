@@ -1,0 +1,40 @@
+/**
+ * @fileoverview Print styles for the Praescio autocomplete component.
+ *
+ * The floating suggestion panel and screen-reader live region serve no purpose
+ * in a printed document. Hiding them avoids wasting ink and prevents the panel
+ * from overlapping printed form content if it happens to be open when the user
+ * triggers print.
+ *
+ * .praescio__panel is the component root element — it is targeted directly
+ * inside @media print and does not need to be nested under itself.
+ * .praescio__live is a sibling of the panel in the DOM (not a descendant) so
+ * it is also targeted directly.
+ *
+ * The anchor <input> element is deliberately left unstyled — the browser will
+ * render its current value as text within the form layout, which is the correct
+ * behavior for printed forms.
+ *
+ * @author Aditya B
+ */
+
+/* ── Print media block ───────────────────────────────────────────────────── */
+@media print {
+  /**
+   * Hide the floating suggestion panel in print output.
+   * !important overrides any inline display: block that JavaScript may have
+   * applied when the panel is open.
+   */
+  .praescio__panel {
+    display: none !important;
+  }
+
+  /**
+   * Hide the screen-reader live region — it contains no visible content and
+   * would print as an invisible 1px element that still consumes page space
+   * in some browsers.
+   */
+  .praescio__live {
+    display: none !important;
+  }
+}

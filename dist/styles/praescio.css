@@ -1,0 +1,1173 @@
+/**
+ * Praescio v1.0.0 — https://github.com/adityakahb/praescio
+ *
+ * @fileoverview Main stylesheet entry point for the Praescio autocomplete
+ * component.
+ *
+ * Import this single file in your application to apply all Praescio styles:
+ *
+ *   import 'praescio/src/styles/praescio.css';
+ *   // or in CSS:
+ *   @import 'praescio/src/styles/praescio.css';
+ *
+ * Import order is significant — each partial depends on the CSS custom
+ * properties declared in variables.css, so that file is loaded first.
+ * Theme overrides are loaded last so they can reliably override base tokens.
+ *
+ * Partial manifest (in load order):
+ *   variables.css         — CSS custom property tokens (:root)
+ *   base.css              — Panel shell, listbox, slots, live region
+ *   item.css              — Suggestion item and its child elements
+ *   group.css             — Option-group container and label
+ *   icons.css             — SVG and image icon wrappers
+ *   states.css            — Loading / empty / error slots, divider, spinner
+ *   responsive.css        — Touch, iOS, reduced-motion, forced-colors overrides
+ *   print.css             — Print media — hides panel and live region
+ *   themes/default.css    — Explicit light-theme token overrides
+ *   themes/dark.css       — Dark-theme token overrides (explicit + auto)
+ *
+ * @author Aditya B
+ */
+
+/* ── Design tokens — must be first ──────────────────────────────────────── */
+
+/**
+ * @fileoverview CSS custom property tokens for the Praescio autocomplete library.
+ *
+ * All design tokens are declared on :root as CSS custom properties (--praescio-*).
+ * Consumer applications can override any token by re-declaring the property on
+ * a containing element — no build step or SASS required.
+ *
+ * Token groups:
+ *   Colors     — background, text, border, state, highlight, semantic
+ *   Typography — font family, size, weight, transform
+ *   Spacing    — panel padding, item padding, gaps, min-heights
+ *   Layout     — panel dimensions, z-index, border-radius, shadow
+ *   Animation  — transition duration and easing
+ *
+ * @author Aditya B
+ */
+
+:root {
+  /* ── Colors ─────────────────────────────────────────────────────────────── */
+
+  /** Panel / component background */
+  --praescio-bg: #fff;
+
+  /** Primary text color — meets WCAG 2.1 AA on --praescio-bg (#ffffff) */
+  --praescio-text-color: #111827;
+
+  /** Border color for the panel and slot separators */
+  --praescio-border-color: #d1d5db;
+
+  /** Width of all borders in the component */
+  --praescio-border-width: 1px;
+
+  /** Item background on mouse hover */
+  --praescio-item-hover-bg: #f3f4f6;
+
+  /** Item background when keyboard-highlighted or aria-selected */
+  --praescio-item-active-bg: #eff6ff;
+
+  /** Item left-border accent when keyboard-highlighted or aria-selected */
+  --praescio-item-active-border: #3b82f6;
+
+  /** Highlight mark background (transparent by default — color alone conveys state) */
+  --praescio-highlight-bg: transparent;
+
+  /** Highlight mark text color — 4.58:1 contrast on #ffffff */
+  --praescio-highlight-color: #1d4ed8;
+
+  /** Highlight mark font-weight */
+  --praescio-highlight-weight: 600;
+
+  /** Group label text color */
+  --praescio-group-label-color: #6b7280;
+
+  /** Item description / secondary text color */
+  --praescio-description-color: #6b7280;
+
+  /** Divider / separator line color */
+  --praescio-divider-color: #e5e7eb;
+
+  /** Badge chip background */
+  --praescio-badge-bg: #f3f4f6;
+
+  /** Badge chip text color */
+  --praescio-badge-color: #374151;
+
+  /** Slot (loading / empty) text color */
+  --praescio-slot-color: #9ca3af;
+
+  /** Error slot text color — meets WCAG AA on --praescio-error-bg */
+  --praescio-error-color: #b91c1c;
+
+  /** Error slot background */
+  --praescio-error-bg: #fef2f2;
+
+  /** Focus ring box-shadow value — visible on all supported browsers */
+  --praescio-focus-ring: 0 0 0 2px #3b82f6;
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Font family — inherits from the page by default so the component blends
+   * with the surrounding application typography.
+   */
+  --praescio-font-family: inherit;
+
+  /**
+   * Base font size. NEVER set below 1rem (16px): values under 16px trigger
+   * automatic viewport zoom in iOS Safari when an input receives focus.
+   */
+  --praescio-font-size: 1rem;
+
+  /** Item label font-weight */
+  --praescio-label-weight: 400;
+
+  /** Description / secondary text font-size */
+  --praescio-description-size: 0.875rem;
+
+  /** Group label font-size */
+  --praescio-group-label-size: 0.75rem;
+
+  /** Group label font-weight */
+  --praescio-group-label-weight: 600;
+
+  /* ── Spacing ────────────────────────────────────────────────────────────── */
+
+  /** Outer padding of the panel container */
+  --praescio-panel-padding: 0.25rem;
+
+  /** Vertical padding of each list item */
+  --praescio-item-padding-y: 0.5rem;
+
+  /** Horizontal padding of each list item */
+  --praescio-item-padding-x: 0.75rem;
+
+  /** Top padding before a group label */
+  --praescio-group-padding-top: 0.5rem;
+
+  /** Horizontal padding of group label */
+  --praescio-group-padding-x: 0.75rem;
+
+  /** Gap between icon and item body */
+  --praescio-item-gap: 0.5rem;
+
+  /**
+   * Minimum item block-size — WCAG 2.5.5 requires at least 44×44 px touch
+   * targets. Default 2.75 rem (44 px at 16 px root).
+   */
+  --praescio-item-min-height: 2.75rem;
+
+  /** Icon size (width and height) */
+  --praescio-icon-size: 1.25rem;
+
+  /** Badge chip padding (block inline) */
+  --praescio-badge-padding: 0.125rem 0.375rem;
+
+  /* ── Layout ─────────────────────────────────────────────────────────────── */
+
+  /** Maximum block-size of the scrollable list */
+  --praescio-panel-max-height: 18rem;
+
+  /** Minimum inline-size of the panel */
+  --praescio-panel-min-width: 12.5rem;
+
+  /** Border-radius of the panel and item corners */
+  --praescio-panel-radius: 0.375rem;
+
+  /** Drop-shadow for the floating panel */
+  --praescio-panel-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /** Stacking order — high enough to appear above most page content */
+  --praescio-z-index: 9999;
+
+  /* ── Animation ──────────────────────────────────────────────────────────── */
+
+  /** Duration of open/close and hover transitions */
+  --praescio-transition-duration: 150ms;
+
+  /** Easing function for transitions */
+  --praescio-transition-easing: ease-out;
+
+  /* ── Breakpoints ────────────────────────────────────────────────────────── */
+
+  /**
+   * Consumer-facing desktop breakpoint token. Media queries in this library
+   * hardcode 1280px; use this variable in your own @media rules for consistency.
+   */
+  --praescio-breakpoint: 1280px;
+}
+
+/* ── Structural partials ─────────────────────────────────────────────────── */
+
+/**
+ * @fileoverview Panel shell, listbox, slot, and live-region base styles for
+ * the Praescio autocomplete component.
+ *
+ * All structural rules are nested inside .praescio__panel so that styles are
+ * scoped to the component and cannot bleed into surrounding page elements.
+ * The box-sizing reset is scoped to the panel and its descendants instead of
+ * using a global * selector.
+ *
+ * @keyframes are declared at root level — the CSS spec disallows @keyframes
+ * inside selector rules. The praescio- prefix namespaces them to this component.
+ *
+ * .praescio__live is declared at root level because it is a sibling of the
+ * panel in the DOM (appended near the anchor input), not a descendant.
+ *
+ * @author Aditya B
+ */
+
+/* ── Panel shell ─────────────────────────────────────────────────────────── */
+
+/**
+ * The outermost floating container. All component styles are nested here so
+ * they are scoped to the component and do not affect the surrounding page.
+ */
+
+.praescio__panel {
+  /* ── Box-sizing reset scoped to the component ──────────────────────────── */
+  /**
+   * Apply border-box sizing to the panel and every element inside it so
+   * padding and borders do not expand declared widths. Using & here ensures
+   * the reset never touches elements outside .praescio__panel.
+   */
+  &,
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
+
+  /* ── Panel layout ───────────────────────────────────────────────────────── */
+  /**
+   * Positioned absolutely relative to its nearest positioned ancestor (the
+   * anchor input wrapper). z-index ensures it floats above page content.
+   */
+  position: absolute;
+  z-index: var(--praescio-z-index);
+  min-width: var(--praescio-panel-min-width, 12.5rem);
+  max-width: 100vw;
+  background-color: var(--praescio-bg);
+  color: var(--praescio-text-color);
+  border: var(--praescio-border-width) solid var(--praescio-border-color);
+  border-radius: var(--praescio-panel-radius);
+  box-shadow: var(--praescio-panel-shadow);
+  font-family: var(--praescio-font-family);
+  font-size: var(--praescio-font-size);
+  padding: 0;
+  overflow: hidden;
+
+  /* Animate panel opening — slides down from the anchor input */
+  animation: praescio-fade-in var(--praescio-transition-duration) var(--praescio-transition-easing)
+    both;
+
+  /* When placed above the input, reverse the slide direction */
+  &[data-praescio-placement="top"] {
+    animation-name: praescio-fade-in-up;
+  }
+
+  /* ── Listbox ──────────────────────────────────────────────────────────── */
+  /**
+   * Scrollable list of suggestion items (role="listbox"). overflow-y: auto
+   * adds a scrollbar only when content exceeds --praescio-panel-max-height.
+   */
+  & .praescio__list {
+    overflow-y: auto;
+    max-height: var(--praescio-panel-max-height);
+    padding: 0.25rem 0;
+    list-style: none;
+    margin: 0;
+    outline: none;
+  }
+
+  /* ── Panel slots ────────────────────────────────────────────────────────── */
+  /**
+   * Header and footer projection slots for custom content (e.g. a search hint
+   * or a "powered by" footer). Both share padding and type scale with item
+   * descriptions; only the border placement differs.
+   */
+  & .praescio__panel__header,
+  & .praescio__panel__footer {
+    padding: 0.5rem var(--praescio-item-padding-x, 0.75rem);
+    font-size: var(--praescio-description-size);
+    color: var(--praescio-group-label-color);
+    border-bottom: var(--praescio-border-width) solid var(--praescio-border-color);
+  }
+
+  /** Footer slot — border at top rather than bottom */
+  & .praescio__panel__footer {
+    border-bottom: none;
+    border-top: var(--praescio-border-width) solid var(--praescio-border-color);
+  }
+}
+
+/* ── Panel open animation — slides down and fades in ────────────────────── */
+
+/**
+ * @keyframes must live at root level — the CSS spec forbids @keyframes inside
+ * selector rules. The praescio- prefix scopes the names to this component.
+ */
+
+@keyframes praescio-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Panel open animation (above anchor) — slides up and fades in ────────── */
+
+@keyframes praescio-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Screen-reader live region ───────────────────────────────────────────── */
+
+/**
+ * Declared at root level because .praescio__live is a sibling of the panel
+ * in the DOM, not a descendant — it is appended near the anchor input, outside
+ * the floating .praescio__panel element.
+ *
+ * Visually hidden via the modern clip-path: inset(50%) technique. The legacy
+ * clip property is included as a fallback for older assistive-technology UAs.
+ */
+
+.praescio__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  /* Legacy fallback — deprecated but supported by older screen-reader UAs */
+  clip: rect(0, 0, 0, 0);
+  /* Modern equivalent — clips the 1px box to nothing */
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}
+
+/**
+ * @fileoverview List item styles for the Praescio autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot accidentally style elements with the same class names
+ * outside the dropdown.
+ *
+ * CSS nesting IS used for modifier classes and pseudo-selectors that are
+ * intrinsically tied to the parent block (hover, focus-visible, --highlighted).
+ *
+ * Accessibility:
+ *   - Items meet WCAG 2.5.5 minimum 44×44 px touch target (--praescio-item-min-height).
+ *   - Highlighted / selected state uses both background and border so it is
+ *     distinguishable in Windows High Contrast / forced-colors mode.
+ *   - forced-colors override ensures .praescio__highlight remains visible when
+ *     the OS replaces arbitrary colors with system palette entries.
+ *
+ * @author Aditya B
+ */
+
+/* ── Item styles scoped to the panel component ───────────────────────────── */
+
+.praescio__panel {
+  /* ── Base item ─────────────────────────────────────────────────────────── */
+  /**
+   * Each list item is a flex row containing an optional icon, a body (label +
+   * description), and an optional badge. The transparent border reserves the
+   * 2px space so that the layout does not shift when the border becomes visible
+   * on keyboard focus / selection.
+   */
+  & .praescio__item {
+    display: flex;
+    align-items: center;
+    gap: var(--praescio-item-gap, 0.5rem);
+    min-height: var(--praescio-item-min-height);
+    padding: var(--praescio-item-padding-y, 0.5rem) var(--praescio-item-padding-x, 0.75rem);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--praescio-font-size);
+    font-weight: var(--praescio-label-weight);
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+    transition: background-color var(--praescio-transition-duration)
+      var(--praescio-transition-easing);
+    /* Transparent border reserves space — prevents layout shift on selection */
+    border: 2px solid transparent;
+    border-radius: calc(var(--praescio-panel-radius) - 2px);
+    margin: 0 2px;
+    width: calc(100% - 4px);
+
+    /* Hover state — only for pointer/mouse; coarse-pointer override is in responsive.css */
+    &:hover {
+      background-color: var(--praescio-item-hover-bg);
+    }
+
+    /* Keyboard-highlighted item (set via JS) or aria-selected="true" (ARIA listbox pattern) */
+    &.praescio__item--highlighted,
+    &[aria-selected="true"] {
+      background-color: var(--praescio-item-active-bg);
+      border-color: var(--praescio-item-active-border);
+    }
+
+    /* Keyboard focus ring — uses box-shadow to avoid changing layout */
+    &:focus-visible {
+      box-shadow: var(--praescio-focus-ring);
+      outline: none;
+    }
+  }
+
+  /* ── Item body ─────────────────────────────────────────────────────────── */
+  /**
+   * Vertical flex column that stacks the label and description. flex: 1 with
+   * min-width: 0 allows long text to truncate via text-overflow rather than
+   * expanding the row width.
+   */
+  & .praescio__item__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* Allow text truncation — without min-width: 0 flex children cannot shrink below content size */
+    min-width: 0;
+    gap: 0.125rem;
+  }
+
+  /* ── Item label ────────────────────────────────────────────────────────── */
+  /**
+   * Primary text of the suggestion. Truncates with an ellipsis when it exceeds
+   * the available inline size.
+   */
+  & .praescio__item__label {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: var(--praescio-label-weight);
+  }
+
+  /* ── Item description ──────────────────────────────────────────────────── */
+  /**
+   * Secondary / subtitle text rendered below the label. Uses the smaller
+   * description font-size and a muted color token.
+   */
+  & .praescio__item__description {
+    display: block;
+    font-size: var(--praescio-description-size);
+    color: var(--praescio-description-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Item badge ────────────────────────────────────────────────────────── */
+  /**
+   * Optional pill/chip displayed at the trailing edge of the item row (e.g. a
+   * category tag or keyboard shortcut hint). margin-inline-start: auto pushes
+   * it to the end of the flex row regardless of content length.
+   */
+  & .praescio__item__badge {
+    margin-inline-start: auto;
+    padding: var(--praescio-badge-padding, 0.125rem 0.375rem);
+    background-color: var(--praescio-badge-bg);
+    color: var(--praescio-badge-color);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── Matched query highlight ───────────────────────────────────────────── */
+  /**
+   * Inline <mark> or <span> element that wraps characters matching the current
+   * query. Color alone conveys the match (background is transparent by default)
+   * so it remains intelligible in all color modes.
+   *
+   * The forced-colors block overrides the OS palette substitution so the
+   * highlight color is preserved using system Highlight / HighlightText values,
+   * which are guaranteed to have sufficient contrast in Windows High Contrast.
+   */
+  & .praescio__highlight {
+    background-color: var(--praescio-highlight-bg);
+    color: var(--praescio-highlight-color);
+    font-weight: var(--praescio-highlight-weight);
+
+    /* Preserve highlight appearance in Windows High Contrast / forced-colors mode */
+    @media (forced-colors: active) {
+      forced-color-adjust: none;
+      color: Highlight;
+      background-color: HighlightText;
+    }
+  }
+}
+
+/**
+ * @fileoverview Option-group and group-label styles for the Praescio
+ * autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot affect elements with the same class names elsewhere on
+ * the page.
+ *
+ * Groups visually cluster related suggestions under a shared heading. When
+ * multiple groups appear in sequence, a divider line is inserted between them
+ * via the adjacent-sibling combinator so no extra markup is required.
+ *
+ * @author Aditya B
+ */
+
+/* ── Group styles scoped to the panel component ──────────────────────────── */
+
+.praescio__panel {
+  /* ── Group container ───────────────────────────────────────────────────── */
+  /**
+   * Wraps a group label and its associated list items. Rendered as a block so
+   * child items flow naturally in the list layout.
+   */
+  & .praescio__group {
+    display: block;
+  }
+
+  /* ── Group label ───────────────────────────────────────────────────────── */
+  /**
+   * Non-interactive heading above a set of related suggestions. pointer-events:
+   * none and user-select: none prevent accidental selection or click handling
+   * that could interfere with keyboard navigation.
+   *
+   * The .praescio__item__icon child inside a group label is sized down slightly
+   * to align with the smaller group-label text.
+   */
+  & .praescio__group__label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: var(--praescio-group-padding-top, 0.5rem) var(--praescio-group-padding-x, 0.75rem)
+      0.25rem;
+    font-size: var(--praescio-group-label-size);
+    font-weight: var(--praescio-group-label-weight, 600);
+    color: var(--praescio-group-label-color);
+    /* Uppercase with letter-spacing follows common convention for section headers */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+            user-select: none;
+
+    /** Icon inside a group label — scaled to match the smaller label text */
+    & .praescio__item__icon {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+  }
+
+  /* ── Group separator ───────────────────────────────────────────────────── */
+  /**
+   * When a .praescio__group immediately follows another .praescio__group, a
+   * visual divider is drawn between them using a border-top. No additional
+   * markup or JavaScript is needed.
+   */
+  & .praescio__group + .praescio__group {
+    border-top: 1px solid var(--praescio-divider-color);
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+  }
+}
+
+/**
+ * @fileoverview Icon styles for the Praescio autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot affect elements with the same class names elsewhere.
+ *
+ * Two icon variants are supported:
+ *
+ *   .praescio__item__icon     — SVG or icon-font icons embedded as child elements.
+ *                               color: inherit allows the parent item to drive
+ *                               the icon color via currentColor.
+ *
+ *   .praescio__item__icon-img — Raster or external SVG icons loaded as <img>
+ *                               elements. object-fit: contain keeps the aspect
+ *                               ratio intact within the fixed icon box.
+ *
+ * Both variants share the same --praescio-icon-size token so changing one token
+ * resizes all icons consistently.
+ *
+ * @author Aditya B
+ */
+
+/* ── Icon styles scoped to the panel component ───────────────────────────── */
+
+.praescio__panel {
+  /* ── SVG / inline icon wrapper ─────────────────────────────────────────── */
+  /**
+   * Flex container that centers its SVG child inside a fixed-size box.
+   * flex-shrink: 0 prevents the icon from being squashed when the item label
+   * is long. color: inherit passes the parent's text color to currentColor so
+   * SVG fills/strokes respond to theme changes automatically.
+   */
+  & .praescio__item__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--praescio-icon-size);
+    height: var(--praescio-icon-size);
+    flex-shrink: 0;
+    color: inherit;
+
+    /** SVG child fills the icon box and is rendered as a block to remove baseline gap */
+    & svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
+
+  /* ── Raster / external image icon ──────────────────────────────────────── */
+  /**
+   * Used when the icon is an <img> element (e.g. a logo PNG or external SVG).
+   * object-fit: contain scales the image to fit inside the icon box without
+   * cropping. border-radius softens square logos.
+   */
+  & .praescio__item__icon-img {
+    width: var(--praescio-icon-size);
+    height: var(--praescio-icon-size);
+    -o-object-fit: contain;
+       object-fit: contain;
+    border-radius: 2px;
+    display: block;
+  }
+}
+
+/**
+ * @fileoverview Loading, empty, error slot styles, dividers, and the CSS-only
+ * spinner animation for the Praescio autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot affect elements with the same class names elsewhere.
+ *
+ * Slot classes are BEM modifier variants of a conceptual .praescio__slot block:
+ *   .praescio__slot--loading  — shown while suggestions are being fetched
+ *   .praescio__slot--empty    — shown when the query returns zero results
+ *   .praescio__slot--error    — shown when the fetch request fails
+ *
+ * The spinner is a pure-CSS rotating ring — no images or icon fonts required.
+ * It is suppressed by the reduced-motion media query in responsive.css.
+ *
+ * @keyframes praescio-spin is declared at root level — the CSS spec forbids
+ * @keyframes inside selector rules. The praescio- prefix scopes the name.
+ *
+ * @author Aditya B
+ */
+
+/* ── State styles scoped to the panel component ──────────────────────────── */
+
+.praescio__panel {
+  /* ── Loading slot ────────────────────────────────────────────────────── */
+  /**
+   * Flex row that places the spinner icon to the left of the loading message.
+   * Uses the same horizontal padding as list items for visual alignment.
+   */
+  & .praescio__slot--loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem var(--praescio-item-padding-x, 0.75rem);
+    color: var(--praescio-slot-color);
+    font-size: var(--praescio-description-size);
+  }
+
+  /* ── Empty slot ──────────────────────────────────────────────────────── */
+  /**
+   * Centered "No results" message displayed when the filtered suggestion list
+   * is empty. text-align: center distinguishes it visually from regular items.
+   */
+  & .praescio__slot--empty {
+    padding: 0.75rem var(--praescio-item-padding-x, 0.75rem);
+    color: var(--praescio-slot-color);
+    font-size: var(--praescio-description-size);
+    text-align: center;
+  }
+
+  /* ── Error slot ──────────────────────────────────────────────────────── */
+  /**
+   * Error message shown when the suggestion fetch fails. Uses distinct
+   * error-color and error-bg tokens to communicate failure state clearly.
+   * Inset margin and reduced radius keep it visually contained within the panel.
+   */
+  & .praescio__slot--error {
+    padding: 0.75rem var(--praescio-item-padding-x, 0.75rem);
+    color: var(--praescio-error-color);
+    background-color: var(--praescio-error-bg);
+    font-size: var(--praescio-description-size);
+    border-radius: calc(var(--praescio-panel-radius) - 2px);
+    margin: 4px;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────────── */
+  /**
+   * Horizontal rule rendered as a <hr> element. border: none resets the
+   * browser default double-border; the single border-top provides the line.
+   */
+  & .praescio__divider {
+    border: none;
+    border-top: 1px solid var(--praescio-divider-color);
+    margin: 0.25rem 0;
+  }
+
+  /* ── CSS-only loading spinner ────────────────────────────────────────── */
+  /**
+   * Rotating ring built from a single element with two border colors.
+   * The top border uses the highlight color to create the illusion of a moving
+   * arc against the neutral track.
+   *
+   * The animation is suppressed in @media (prefers-reduced-motion: reduce) via
+   * responsive.css — the spinner remains visible as a static ring so loading
+   * state is still communicated.
+   */
+  & .praescio__spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--praescio-border-color);
+    border-top-color: var(--praescio-highlight-color);
+    border-radius: 50%;
+    animation: praescio-spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Full rotation keyframe used by .praescio__spinner ───────────────────── */
+
+/**
+ * @keyframes must live at root level — the CSS spec forbids @keyframes inside
+ * selector rules. The praescio- prefix scopes the name to this component.
+ */
+
+@keyframes praescio-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Environment / accessibility overrides ───────────────────────────────── */
+
+/**
+ * @fileoverview Responsive and accessibility media-query overrides for the
+ * Praescio autocomplete component.
+ *
+ * This file contains ONLY conditional rules — every rule is wrapped in a
+ * @media or @supports block. Base (mobile-first) styles live in the other
+ * partial files; this file adjusts them for specific environments:
+ *
+ *   @media (pointer: coarse)                — touch / stylus devices
+ *   @supports (-webkit-touch-callout: none) — iOS Safari input zoom prevention
+ *   @media (prefers-reduced-motion: reduce) — vestibular / motion sensitivity
+ *   @media (forced-colors: active)          — Windows High Contrast Mode
+ *
+ * Rules for component elements are nested inside .praescio__panel so they are
+ * scoped to the component.
+ *
+ * Exception: the @supports (-webkit-touch-callout: none) block targets
+ * [aria-haspopup="listbox"] — the anchor INPUT element that exists outside the
+ * panel in the DOM — so it cannot be scoped under .praescio__panel.
+ *
+ * @author Aditya B
+ */
+
+/* ── Touch / coarse-pointer devices ──────────────────────────────────────── */
+
+/**
+ * On touch screens (phones, tablets, stylus displays) hover states can
+ * "stick" after a tap, causing confusing persistent highlights. This block:
+ *   1. Enlarges the tap target height to be generous for finger use.
+ *   2. Removes the hover background so only aria-selected drives visual state.
+ */
+
+@media (pointer: coarse) {
+  .praescio__panel {
+    & .praescio__item {
+      /* Generous tap target for finger use — max() keeps it at least 2.75rem */
+      min-height: max(var(--praescio-item-min-height), 2.75rem);
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+
+      /* Disable hover background — touch devices have no reliable hover intent */
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+/* ── iOS Safari viewport-zoom prevention ─────────────────────────────────── */
+
+/**
+ * iOS Safari automatically zooms the viewport when an input with font-size
+ * below 16 px (1 rem) receives focus. This @supports block targets iOS Safari
+ * specifically and ensures any input that triggers the Praescio listbox
+ * (aria-haspopup="listbox") uses at least 1 rem.
+ *
+ * This rule targets [aria-haspopup="listbox"] — the anchor INPUT element that
+ * lives outside .praescio__panel in the DOM. It is intentionally NOT nested
+ * under .praescio__panel because it applies to the consumer's input element,
+ * not to a descendant of the floating panel.
+ *
+ * The actual default is already 1 rem via --praescio-font-size; this rule acts as
+ * a safety net in case a consumer overrides it to a smaller value.
+ */
+
+@supports (-webkit-touch-callout: none) {
+  [aria-haspopup="listbox"] {
+    font-size: max(1rem, var(--praescio-font-size, 1rem));
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+/**
+ * Respects the user's operating-system preference to reduce or eliminate
+ * animations. Users with vestibular disorders, migraines, or attention
+ * sensitivities may enable this setting.
+ *
+ * Panel animations and item transitions are removed entirely. The spinner
+ * animation stops but the element remains visible as a static ring so loading
+ * state is still communicated without motion.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .praescio__panel {
+    /* Remove panel open/close animation */
+    animation: none;
+    transition: none;
+
+    /* Remove item hover/selection transition */
+    & .praescio__item {
+      transition: none;
+    }
+
+    /* Stop spinner rotation — static ring still indicates loading state */
+    & .praescio__spinner {
+      animation: none;
+      border-top-color: var(--praescio-highlight-color);
+    }
+  }
+}
+
+/* ── Windows High Contrast Mode (forced-colors) ──────────────────────────── */
+
+/**
+ * In forced-colors mode the OS replaces arbitrary colors with a small system
+ * palette. This block reasserts meaningful visual distinctions using only
+ * the guaranteed system color keywords (ButtonText, Highlight, HighlightText).
+ *
+ * Rules here complement the forced-color-adjust: none on .praescio__highlight
+ * in item.css — that class preserves its own color pair independently.
+ */
+
+@media (forced-colors: active) {
+  .praescio__panel {
+    /* Strengthen panel border so it is visible against any system background */
+    border: 2px solid ButtonText;
+
+    & .praescio__item {
+      /* Transparent border still reserves layout space */
+      border: 2px solid transparent;
+
+      /* Selected / highlighted item uses system Highlight palette */
+      &.praescio__item--highlighted,
+      &[aria-selected="true"] {
+        border-color: Highlight;
+        background-color: Highlight;
+        color: HighlightText;
+        forced-color-adjust: none;
+      }
+
+      /* Focus ring uses outline (not box-shadow) in forced-colors */
+      &:focus-visible {
+        outline: 2px solid ButtonText;
+        outline-offset: 2px;
+      }
+    }
+
+    /* Divider must use a system color to remain visible */
+    & .praescio__divider {
+      border-top-color: ButtonText;
+    }
+  }
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+
+/**
+ * @fileoverview Print styles for the Praescio autocomplete component.
+ *
+ * The floating suggestion panel and screen-reader live region serve no purpose
+ * in a printed document. Hiding them avoids wasting ink and prevents the panel
+ * from overlapping printed form content if it happens to be open when the user
+ * triggers print.
+ *
+ * .praescio__panel is the component root element — it is targeted directly
+ * inside @media print and does not need to be nested under itself.
+ * .praescio__live is a sibling of the panel in the DOM (not a descendant) so
+ * it is also targeted directly.
+ *
+ * The anchor <input> element is deliberately left unstyled — the browser will
+ * render its current value as text within the form layout, which is the correct
+ * behavior for printed forms.
+ *
+ * @author Aditya B
+ */
+
+/* ── Print media block ───────────────────────────────────────────────────── */
+
+@media print {
+  /**
+   * Hide the floating suggestion panel in print output.
+   * !important overrides any inline display: block that JavaScript may have
+   * applied when the panel is open.
+   */
+  .praescio__panel {
+    display: none !important;
+  }
+
+  /**
+   * Hide the screen-reader live region — it contains no visible content and
+   * would print as an invisible 1px element that still consumes page space
+   * in some browsers.
+   */
+  .praescio__live {
+    display: none !important;
+  }
+}
+
+/* ── Theme overrides (last — highest specificity wins) ───────────────────── */
+
+/**
+ * @fileoverview Light (default) theme token overrides for the Praescio
+ * autocomplete component.
+ *
+ * These values are identical to the :root defaults in variables.css. Declaring
+ * them explicitly under the light-theme selector lets consumers lock the
+ * component to the light palette even when the user's OS preference is dark —
+ * preventing the auto-dark override in themes/dark.css from activating.
+ *
+ * Scoping: tokens are applied directly to .praescio__panel (not an ancestor)
+ * so CSS custom properties cascade to all descendant elements without leaking
+ * to the surrounding page.
+ *
+ * Two selector forms cover both placement strategies:
+ *   1. :is([data-praescio-theme="light"]) .praescio__panel  — panel is a descendant
+ *      of a light-themed wrapper (e.g. the component is inside an app shell)
+ *   2. .praescio__panel[data-praescio-theme="light"]  — attribute set directly on
+ *      the panel element via the `container` option
+ *
+ * Usage:
+ *   <div data-praescio-theme="light">
+ *     \3c !-- Praescio input — panel renders in light mode regardless of OS setting -->
+ *   </div>
+ *
+ * @author Aditya B
+ */
+
+/* ── Explicit light theme ────────────────────────────────────────────────── */
+
+/**
+ * Tokens are set on .praescio__panel so they are scoped to the component root.
+ * CSS custom properties inherit to all descendants from there.
+ */
+
+:is([data-praescio-theme="light"]) .praescio__panel,
+.praescio__panel[data-praescio-theme="light"] {
+  /* Panel / component background — pure white */
+  --praescio-bg: #fff;
+
+  /* Panel border */
+  --praescio-border-color: #d1d5db;
+
+  /* Item hover background — very light gray */
+  --praescio-item-hover-bg: #f3f4f6;
+
+  /* Item active/selected background — light blue tint */
+  --praescio-item-active-bg: #eff6ff;
+
+  /* Item active/selected border accent — blue-500 */
+  --praescio-item-active-border: #3b82f6;
+
+  /* Highlight match color — blue-700, 4.58:1 contrast on white */
+  --praescio-highlight-color: #1d4ed8;
+
+  /* Group label and description muted color — gray-500 */
+  --praescio-group-label-color: #6b7280;
+  --praescio-description-color: #6b7280;
+
+  /* Divider line — gray-200 */
+  --praescio-divider-color: #e5e7eb;
+
+  /* Badge chip — light gray background, dark gray text */
+  --praescio-badge-bg: #f3f4f6;
+  --praescio-badge-color: #374151;
+
+  /* Slot (loading/empty) text — gray-400 */
+  --praescio-slot-color: #9ca3af;
+
+  /* Error state — red-700 on red-50 */
+  --praescio-error-color: #b91c1c;
+  --praescio-error-bg: #fef2f2;
+}
+
+/**
+ * @fileoverview Dark theme token overrides for the Praescio autocomplete
+ * component.
+ *
+ * Three activation paths are supported:
+ *
+ *   1. [data-praescio-theme="dark"] attribute on the panel or any ancestor — explicit opt-in.
+ *   2. .praescio--dark class on the panel or any ancestor — JS/framework class binding.
+ *   3. @media (prefers-color-scheme: dark) auto-detection — applies to
+ *      .praescio__panel unless a [data-praescio-theme="light"] override is present,
+ *      allowing mixed-mode pages (e.g. a dark OS preference but a light-themed
+ *      section of the page).
+ *
+ * Scoping: tokens are applied directly to .praescio__panel (not an ancestor)
+ * so CSS custom properties cascade to all descendant elements without leaking
+ * to the surrounding page.
+ *
+ * Two selector forms cover both placement strategies for paths 1 and 2:
+ *   :is([data-praescio-theme="dark"], .praescio--dark) .praescio__panel
+ *     — panel is inside a dark-themed wrapper
+ *   .praescio__panel:is([data-praescio-theme="dark"], .praescio--dark)
+ *     — attribute / class set directly on the panel element
+ *
+ * All color pairs have been validated for WCAG 2.1 AA contrast (4.5:1 for
+ * normal text, 3:1 for large text / UI components):
+ *   --praescio-text-color (#f1f5f9) on --praescio-bg (#1e293b)  → ~14:1
+ *   --praescio-highlight-color (#93c5fd) on #1e293b         → ~5.1:1
+ *   --praescio-error-color (#fca5a5) on --praescio-error-bg (#450a0a) → ~5.4:1
+ *
+ * @author Aditya B
+ */
+
+/* ── Explicit dark theme (attribute or class on panel or ancestor) ────────── */
+
+/**
+ * Tokens are set on .praescio__panel so they are scoped to the component root.
+ * CSS custom properties inherit to all descendants from there.
+ * Takes priority over the auto-detection block below due to higher specificity.
+ */
+
+:is([data-praescio-theme="dark"], .praescio--dark) .praescio__panel,
+.praescio__panel:is([data-praescio-theme="dark"], .praescio--dark) {
+  /* Panel / component background — slate-800 */
+  --praescio-bg: #1e293b;
+
+  /* Primary text — slate-100, ~14:1 contrast on --praescio-bg */
+  --praescio-text-color: #f1f5f9;
+
+  /* Panel border — slate-600 */
+  --praescio-border-color: #475569;
+
+  /* Item hover background — slate-700 */
+  --praescio-item-hover-bg: #334155;
+
+  /* Item active/selected background — deep blue tint */
+  --praescio-item-active-bg: #1e3a5f;
+
+  /* Item active/selected border accent — blue-400 */
+  --praescio-item-active-border: #60a5fa;
+
+  /* Highlight match color — blue-300, 5.1:1 contrast on --praescio-bg */
+  --praescio-highlight-color: #93c5fd;
+
+  /* Group label and description muted color — slate-400 */
+  --praescio-group-label-color: #94a3b8;
+  --praescio-description-color: #94a3b8;
+
+  /* Divider line — slate-700 */
+  --praescio-divider-color: #334155;
+
+  /* Badge chip — dark slate background, light slate text */
+  --praescio-badge-bg: #334155;
+  --praescio-badge-color: #e2e8f0;
+
+  /* Slot (loading/empty) text — slate-500 */
+  --praescio-slot-color: #64748b;
+
+  /* Error state — red-300 on very dark red background */
+  --praescio-error-color: #fca5a5;
+  --praescio-error-bg: #450a0a;
+
+  /* Focus ring — blue-400 glow */
+  --praescio-focus-ring: 0 0 0 2px #60a5fa;
+}
+
+/* ── Auto dark via OS / browser preference ───────────────────────────────── */
+
+/**
+ * Activates dark theme automatically when the OS or browser reports a dark
+ * color-scheme preference. Already scoped to .praescio__panel — tokens cascade
+ * to all component descendants via CSS inheritance.
+ *
+ * The :not([data-praescio-theme="light"]) guard prevents this rule from overriding
+ * an explicit light-theme lock set by the consumer.
+ */
+
+@media (prefers-color-scheme: dark) {
+  .praescio__panel:not([data-praescio-theme="light"]) {
+    /* Panel / component background — slate-800 */
+    --praescio-bg: #1e293b;
+
+    /* Primary text — slate-100 */
+    --praescio-text-color: #f1f5f9;
+
+    /* Panel border — slate-600 */
+    --praescio-border-color: #475569;
+
+    /* Item hover background — slate-700 */
+    --praescio-item-hover-bg: #334155;
+
+    /* Item active/selected background — deep blue tint */
+    --praescio-item-active-bg: #1e3a5f;
+
+    /* Item active/selected border accent — blue-400 */
+    --praescio-item-active-border: #60a5fa;
+
+    /* Highlight match color — blue-300 */
+    --praescio-highlight-color: #93c5fd;
+
+    /* Group label and description muted color — slate-400 */
+    --praescio-group-label-color: #94a3b8;
+    --praescio-description-color: #94a3b8;
+
+    /* Divider line — slate-700 */
+    --praescio-divider-color: #334155;
+
+    /* Badge chip */
+    --praescio-badge-bg: #334155;
+    --praescio-badge-color: #e2e8f0;
+
+    /* Slot text */
+    --praescio-slot-color: #64748b;
+
+    /* Error state */
+    --praescio-error-color: #fca5a5;
+    --praescio-error-bg: #450a0a;
+
+    /* Focus ring */
+    --praescio-focus-ring: 0 0 0 2px #60a5fa;
+  }
+}

@@ -1,0 +1,168 @@
+/**
+ * @fileoverview CSS custom property tokens for the Praescio autocomplete library.
+ *
+ * All design tokens are declared on :root as CSS custom properties (--praescio-*).
+ * Consumer applications can override any token by re-declaring the property on
+ * a containing element — no build step or SASS required.
+ *
+ * Token groups:
+ *   Colors     — background, text, border, state, highlight, semantic
+ *   Typography — font family, size, weight, transform
+ *   Spacing    — panel padding, item padding, gaps, min-heights
+ *   Layout     — panel dimensions, z-index, border-radius, shadow
+ *   Animation  — transition duration and easing
+ *
+ * @author Aditya B
+ */
+
+:root {
+  /* ── Colors ─────────────────────────────────────────────────────────────── */
+
+  /** Panel / component background */
+  --praescio-bg: #fff;
+
+  /** Primary text color — meets WCAG 2.1 AA on --praescio-bg (#ffffff) */
+  --praescio-text-color: #111827;
+
+  /** Border color for the panel and slot separators */
+  --praescio-border-color: #d1d5db;
+
+  /** Width of all borders in the component */
+  --praescio-border-width: 1px;
+
+  /** Item background on mouse hover */
+  --praescio-item-hover-bg: #f3f4f6;
+
+  /** Item background when keyboard-highlighted or aria-selected */
+  --praescio-item-active-bg: #eff6ff;
+
+  /** Item left-border accent when keyboard-highlighted or aria-selected */
+  --praescio-item-active-border: #3b82f6;
+
+  /** Highlight mark background (transparent by default — color alone conveys state) */
+  --praescio-highlight-bg: transparent;
+
+  /** Highlight mark text color — 4.58:1 contrast on #ffffff */
+  --praescio-highlight-color: #1d4ed8;
+
+  /** Highlight mark font-weight */
+  --praescio-highlight-weight: 600;
+
+  /** Group label text color */
+  --praescio-group-label-color: #6b7280;
+
+  /** Item description / secondary text color */
+  --praescio-description-color: #6b7280;
+
+  /** Divider / separator line color */
+  --praescio-divider-color: #e5e7eb;
+
+  /** Badge chip background */
+  --praescio-badge-bg: #f3f4f6;
+
+  /** Badge chip text color */
+  --praescio-badge-color: #374151;
+
+  /** Slot (loading / empty) text color */
+  --praescio-slot-color: #9ca3af;
+
+  /** Error slot text color — meets WCAG AA on --praescio-error-bg */
+  --praescio-error-color: #b91c1c;
+
+  /** Error slot background */
+  --praescio-error-bg: #fef2f2;
+
+  /** Focus ring box-shadow value — visible on all supported browsers */
+  --praescio-focus-ring: 0 0 0 2px #3b82f6;
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Font family — inherits from the page by default so the component blends
+   * with the surrounding application typography.
+   */
+  --praescio-font-family: inherit;
+
+  /**
+   * Base font size. NEVER set below 1rem (16px): values under 16px trigger
+   * automatic viewport zoom in iOS Safari when an input receives focus.
+   */
+  --praescio-font-size: 1rem;
+
+  /** Item label font-weight */
+  --praescio-label-weight: 400;
+
+  /** Description / secondary text font-size */
+  --praescio-description-size: 0.875rem;
+
+  /** Group label font-size */
+  --praescio-group-label-size: 0.75rem;
+
+  /** Group label font-weight */
+  --praescio-group-label-weight: 600;
+
+  /* ── Spacing ────────────────────────────────────────────────────────────── */
+
+  /** Outer padding of the panel container */
+  --praescio-panel-padding: 0.25rem;
+
+  /** Vertical padding of each list item */
+  --praescio-item-padding-y: 0.5rem;
+
+  /** Horizontal padding of each list item */
+  --praescio-item-padding-x: 0.75rem;
+
+  /** Top padding before a group label */
+  --praescio-group-padding-top: 0.5rem;
+
+  /** Horizontal padding of group label */
+  --praescio-group-padding-x: 0.75rem;
+
+  /** Gap between icon and item body */
+  --praescio-item-gap: 0.5rem;
+
+  /**
+   * Minimum item block-size — WCAG 2.5.5 requires at least 44×44 px touch
+   * targets. Default 2.75 rem (44 px at 16 px root).
+   */
+  --praescio-item-min-height: 2.75rem;
+
+  /** Icon size (width and height) */
+  --praescio-icon-size: 1.25rem;
+
+  /** Badge chip padding (block inline) */
+  --praescio-badge-padding: 0.125rem 0.375rem;
+
+  /* ── Layout ─────────────────────────────────────────────────────────────── */
+
+  /** Maximum block-size of the scrollable list */
+  --praescio-panel-max-height: 18rem;
+
+  /** Minimum inline-size of the panel */
+  --praescio-panel-min-width: 12.5rem;
+
+  /** Border-radius of the panel and item corners */
+  --praescio-panel-radius: 0.375rem;
+
+  /** Drop-shadow for the floating panel */
+  --praescio-panel-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /** Stacking order — high enough to appear above most page content */
+  --praescio-z-index: 9999;
+
+  /* ── Animation ──────────────────────────────────────────────────────────── */
+
+  /** Duration of open/close and hover transitions */
+  --praescio-transition-duration: 150ms;
+
+  /** Easing function for transitions */
+  --praescio-transition-easing: ease-out;
+
+  /* ── Breakpoints ────────────────────────────────────────────────────────── */
+
+  /**
+   * Consumer-facing desktop breakpoint token. Media queries in this library
+   * hardcode 1280px; use this variable in your own @media rules for consistency.
+   */
+  --praescio-breakpoint: 1280px;
+}

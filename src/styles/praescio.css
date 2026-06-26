@@ -1,0 +1,50 @@
+/**
+ * Praescio v1.0.0 — https://github.com/adityakahb/praescio
+ *
+ * @fileoverview Main stylesheet entry point for the Praescio autocomplete
+ * component.
+ *
+ * Import this single file in your application to apply all Praescio styles:
+ *
+ *   import 'praescio/src/styles/praescio.css';
+ *   // or in CSS:
+ *   @import 'praescio/src/styles/praescio.css';
+ *
+ * Import order is significant — each partial depends on the CSS custom
+ * properties declared in variables.css, so that file is loaded first.
+ * Theme overrides are loaded last so they can reliably override base tokens.
+ *
+ * Partial manifest (in load order):
+ *   variables.css         — CSS custom property tokens (:root)
+ *   base.css              — Panel shell, listbox, slots, live region
+ *   item.css              — Suggestion item and its child elements
+ *   group.css             — Option-group container and label
+ *   icons.css             — SVG and image icon wrappers
+ *   states.css            — Loading / empty / error slots, divider, spinner
+ *   responsive.css        — Touch, iOS, reduced-motion, forced-colors overrides
+ *   print.css             — Print media — hides panel and live region
+ *   themes/default.css    — Explicit light-theme token overrides
+ *   themes/dark.css       — Dark-theme token overrides (explicit + auto)
+ *
+ * @author Aditya B
+ */
+
+/* ── Design tokens — must be first ──────────────────────────────────────── */
+@import "./variables.css";
+
+/* ── Structural partials ─────────────────────────────────────────────────── */
+@import "./base.css";
+@import "./item.css";
+@import "./group.css";
+@import "./icons.css";
+@import "./states.css";
+
+/* ── Environment / accessibility overrides ───────────────────────────────── */
+@import "./responsive.css";
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+@import "./print.css";
+
+/* ── Theme overrides (last — highest specificity wins) ───────────────────── */
+@import "./themes/default.css";
+@import "./themes/dark.css";

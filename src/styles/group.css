@@ -1,0 +1,71 @@
+/**
+ * @fileoverview Option-group and group-label styles for the Praescio
+ * autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot affect elements with the same class names elsewhere on
+ * the page.
+ *
+ * Groups visually cluster related suggestions under a shared heading. When
+ * multiple groups appear in sequence, a divider line is inserted between them
+ * via the adjacent-sibling combinator so no extra markup is required.
+ *
+ * @author Aditya B
+ */
+
+@import "./variables.css";
+
+/* ── Group styles scoped to the panel component ──────────────────────────── */
+.praescio__panel {
+  /* ── Group container ───────────────────────────────────────────────────── */
+  /**
+   * Wraps a group label and its associated list items. Rendered as a block so
+   * child items flow naturally in the list layout.
+   */
+  & .praescio__group {
+    display: block;
+  }
+
+  /* ── Group label ───────────────────────────────────────────────────────── */
+  /**
+   * Non-interactive heading above a set of related suggestions. pointer-events:
+   * none and user-select: none prevent accidental selection or click handling
+   * that could interfere with keyboard navigation.
+   *
+   * The .praescio__item__icon child inside a group label is sized down slightly
+   * to align with the smaller group-label text.
+   */
+  & .praescio__group__label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: var(--praescio-group-padding-top, 0.5rem) var(--praescio-group-padding-x, 0.75rem)
+      0.25rem;
+    font-size: var(--praescio-group-label-size);
+    font-weight: var(--praescio-group-label-weight, 600);
+    color: var(--praescio-group-label-color);
+    /* Uppercase with letter-spacing follows common convention for section headers */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    user-select: none;
+
+    /** Icon inside a group label — scaled to match the smaller label text */
+    & .praescio__item__icon {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+  }
+
+  /* ── Group separator ───────────────────────────────────────────────────── */
+  /**
+   * When a .praescio__group immediately follows another .praescio__group, a
+   * visual divider is drawn between them using a border-top. No additional
+   * markup or JavaScript is needed.
+   */
+  & .praescio__group + .praescio__group {
+    border-top: 1px solid var(--praescio-divider-color);
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+  }
+}

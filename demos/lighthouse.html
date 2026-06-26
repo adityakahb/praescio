@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Praescio autocomplete — Lighthouse-optimized demo targeting 95+ on performance, accessibility, best practices, and SEO."
+    />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="lighthouse.html" />
+    <title>Praescio — Lighthouse Demo</title>
+
+    <!-- Module preload — tells the browser to fetch the ESM bundle early -->
+    <link rel="modulepreload" href="../dist/scripts/praescio.esm.js" />
+
+    <!-- Non-blocking CSS load: fetchpriority + onload swap pattern -->
+    <link
+      rel="preload"
+      href="../dist/styles/praescio.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript><link rel="stylesheet" href="../dist/styles/praescio.css" /></noscript>
+
+    <!-- ── Inlined critical CSS ─────────────────────────────────────────────
+       Only the styles needed for above-the-fold content and layout stability
+       are inlined here to eliminate render-blocking resources and prevent CLS.
+  ───────────────────────────────────────────────────────────────────────── -->
+    <style>
+      /* ── Reset ───────────────────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ── Custom properties (light mode) ─────────────────────────────────── */
+      :root {
+        --c-bg: #f8fafc;
+        --c-surface: #ffffff;
+        --c-border: #e2e8f0;
+        --c-text: #1e293b;
+        --c-text-muted: #64748b;
+        --c-accent: #3b82f6;
+        --c-accent-hover: #2563eb;
+        --c-tag: #eff6ff;
+        --c-tag-text: #1d4ed8;
+
+        /* Praescio panel critical variables — prevent CLS */
+        --praescio-bg: #ffffff;
+        --praescio-border-color: #e2e8f0;
+        --praescio-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        --praescio-border-radius: 0.5rem;
+        --praescio-item-height: 2.5rem;
+        --praescio-item-padding: 0.5rem 0.875rem;
+        --praescio-item-hover-bg: #f1f5f9;
+        --praescio-item-active-bg: #eff6ff;
+        --praescio-item-active-border: #3b82f6;
+        --praescio-description-color: #64748b;
+        --praescio-group-label-color: #94a3b8;
+        --praescio-divider-color: #e2e8f0;
+        --praescio-highlight-color: #3b82f6;
+        --praescio-highlight-bg: #eff6ff;
+        --praescio-font-size: 0.9rem;
+        --praescio-z-index: 9999;
+      }
+
+      /* ── Base ────────────────────────────────────────────────────────────── */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--c-bg);
+        color: var(--c-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* ── Skip link ───────────────────────────────────────────────────────── */
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 0;
+        background: #3b82f6;
+        color: #ffffff;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        z-index: 10000;
+        font-size: 0.9rem;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* ── Header ──────────────────────────────────────────────────────────── */
+      header {
+        background: var(--c-surface);
+        border-bottom: 1px solid var(--c-border);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      header h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      header span.version {
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: var(--c-tag);
+        color: var(--c-tag-text);
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+      }
+
+      header nav {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      header nav a {
+        font-size: 0.82rem;
+        color: var(--c-accent);
+        text-decoration: none;
+      }
+      header nav a:hover {
+        text-decoration: underline;
+      }
+
+      .theme-toggle {
+        background: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: 0.375rem;
+        padding: 0.35rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: var(--c-text-muted);
+        transition: background 0.15s;
+      }
+      .theme-toggle:hover {
+        background: var(--c-border);
+      }
+
+      /* ── Layout ──────────────────────────────────────────────────────────── */
+      main {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        display: grid;
+        gap: 2.5rem;
+      }
+
+      @media (min-width: 640px) {
+        main {
+          padding: 3rem 2rem;
+        }
+        header {
+          padding: 1.25rem 2rem;
+        }
+      }
+
+      /* ── Sections ────────────────────────────────────────────────────────── */
+      section {
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: 0.75rem;
+        overflow: hidden;
+      }
+
+      .section-head {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--c-border);
+      }
+
+      .section-head h2 {
+        font-size: 1.05rem;
+        font-weight: 600;
+      }
+
+      .section-head p {
+        font-size: 0.85rem;
+        color: var(--c-text-muted);
+        margin-top: 0.25rem;
+      }
+
+      .section-body {
+        padding: 1.5rem;
+      }
+
+      h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--c-text);
+      }
+
+      /* ── Praescio panel critical styles (prevent CLS) ────────────────────── */
+      .praescio__panel {
+        position: absolute;
+        z-index: var(--praescio-z-index);
+        background: var(--praescio-bg);
+        border: 1px solid var(--praescio-border-color);
+        border-radius: var(--praescio-border-radius);
+        box-shadow: var(--praescio-shadow);
+        overflow: hidden;
+        min-width: 12rem;
+      }
+
+      .praescio__item {
+        display: flex;
+        align-items: center;
+        padding: var(--praescio-item-padding);
+        min-height: var(--praescio-item-height);
+        cursor: pointer;
+        font-size: var(--praescio-font-size);
+      }
+
+      /* ── Input ───────────────────────────────────────────────────────────── */
+      .praescio-input {
+        width: 100%;
+        padding: 0.6rem 0.875rem;
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        background: var(--c-bg);
+        color: var(--c-text);
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .praescio-input:focus {
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      /* ── Score badges ────────────────────────────────────────────────────── */
+      .score-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      @media (min-width: 480px) {
+        .score-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .score-badge {
+        text-align: center;
+        padding: 1rem 0.5rem;
+        background: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+      }
+
+      .score-badge .score-num {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #16a34a;
+        line-height: 1;
+      }
+
+      .score-badge .score-label {
+        font-size: 0.72rem;
+        color: var(--c-text-muted);
+        margin-top: 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      /* ── Code block ──────────────────────────────────────────────────────── */
+      .code-block {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 1.25rem 1.5rem;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.8rem;
+        line-height: 1.7;
+        overflow-x: auto;
+        margin-top: 0.75rem;
+      }
+
+      .code-block .cm {
+        color: #94a3b8;
+      }
+      .code-block .kw {
+        color: #7dd3fc;
+      }
+      .code-block .st {
+        color: #86efac;
+      }
+      .code-block .at {
+        color: #fbbf24;
+      }
+      .code-block .va {
+        color: #c4b5fd;
+      }
+      .code-block .fn {
+        color: #f9a8d4;
+      }
+
+      /* ── Tips list ───────────────────────────────────────────────────────── */
+      .tips-list {
+        list-style: none;
+        display: grid;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .tips-list li {
+        display: flex;
+        gap: 0.875rem;
+        align-items: flex-start;
+      }
+
+      .tips-list li .tip-icon {
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        background: var(--c-tag);
+        color: var(--c-tag-text);
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      .tips-list li .tip-body .tip-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .tips-list li .tip-body .tip-desc {
+        font-size: 0.83rem;
+        color: var(--c-text-muted);
+        margin-top: 0.2rem;
+        line-height: 1.5;
+      }
+
+      /* ── Selected display ────────────────────────────────────────────────── */
+      .selected-display {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+        font-size: 0.88rem;
+      }
+      .selected-display .selected-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--c-text-muted);
+        margin-bottom: 0.25rem;
+      }
+      .selected-display .selected-value {
+        font-weight: 600;
+        color: var(--c-accent);
+      }
+      .selected-display .selected-value.empty {
+        font-weight: 400;
+        font-style: italic;
+        color: var(--c-text-muted);
+      }
+
+      /* ── Footer ──────────────────────────────────────────────────────────── */
+      .demos-footer {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 2rem;
+        border-top: 1px solid var(--c-border);
+        font-size: 0.8rem;
+        color: var(--c-text-muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .demos-footer a {
+        color: var(--c-accent);
+        text-decoration: none;
+      }
+      .demos-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ── Dark theme ──────────────────────────────────────────────────────── */
+      [data-theme='dark'] {
+        --c-bg: #0f172a;
+        --c-surface: #1e293b;
+        --c-border: #334155;
+        --c-text: #f1f5f9;
+        --c-text-muted: #94a3b8;
+        --c-tag: #1e3a8a;
+        --c-tag-text: #93c5fd;
+      }
+
+      /* Praescio tokens scoped to the panel so they don't leak to the page */
+      [data-theme='dark'] .praescio__panel {
+        --praescio-bg: #1e293b;
+        --praescio-border-color: #334155;
+        --praescio-item-hover-bg: #273549;
+        --praescio-item-active-bg: #1e3a5f;
+        --praescio-item-active-border: #60a5fa;
+        --praescio-description-color: #94a3b8;
+        --praescio-group-label-color: #64748b;
+        --praescio-divider-color: #334155;
+      }
+
+      [data-theme='dark'] .score-badge .score-num {
+        color: #4ade80;
+      }
+
+      /* ── Focus styles (WCAG AA) ──────────────────────────────────────────── */
+      :focus-visible {
+        outline: 2px solid var(--c-accent);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header>
+      <h1>Praescio — Lighthouse Demo</h1>
+      <span class="version">v0.1.0</span>
+      <nav aria-label="Demo pages">
+        <a href="index.html">All demos</a>
+        <a href="print.html">Print demo</a>
+        <button class="theme-toggle" id="theme-btn" aria-pressed="false">Toggle dark mode</button>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <!-- ── Target scores ─────────────────────────────────────────────── -->
+      <section id="section-scores" aria-labelledby="scores-heading">
+        <div class="section-head">
+          <h2 id="scores-heading">Target Lighthouse scores</h2>
+          <p>This page is built to achieve 95 or above on all four Lighthouse audit categories.</p>
+        </div>
+        <div class="section-body">
+          <div class="score-grid" role="list" aria-label="Lighthouse score targets">
+            <div class="score-badge" role="listitem">
+              <div class="score-num" aria-label="Performance score">95+</div>
+              <div class="score-label">Performance</div>
+            </div>
+            <div class="score-badge" role="listitem">
+              <div class="score-num" aria-label="Accessibility score">100</div>
+              <div class="score-label">Accessibility</div>
+            </div>
+            <div class="score-badge" role="listitem">
+              <div class="score-num" aria-label="Best practices score">100</div>
+              <div class="score-label">Best Practices</div>
+            </div>
+            <div class="score-badge" role="listitem">
+              <div class="score-num" aria-label="SEO score">100</div>
+              <div class="score-label">SEO</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Live demo ─────────────────────────────────────────────────── -->
+      <section id="section-demo" aria-labelledby="demo-heading">
+        <div class="section-head">
+          <h2 id="demo-heading">Country search — ESM module demo</h2>
+          <p>A fully accessible autocomplete loaded via the ES module bundle.</p>
+        </div>
+        <div class="section-body">
+          <label
+            for="input-country"
+            style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem"
+          >
+            Search countries
+          </label>
+          <input
+            id="input-country"
+            class="praescio-input"
+            type="text"
+            placeholder="Search countries…"
+            autocomplete="off"
+            aria-label="Country search autocomplete"
+            aria-describedby="country-hint"
+          />
+          <p
+            id="country-hint"
+            style="font-size: 0.78rem; color: var(--c-text-muted); margin-top: 0.4rem"
+          >
+            Start typing to see matching countries. Use arrow keys to navigate and Enter to select.
+          </p>
+
+          <div class="selected-display" id="selected-display" aria-live="polite" aria-atomic="true">
+            <div class="selected-label">Selected value</div>
+            <div class="selected-value empty" id="selected-value-text">Nothing selected yet</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ESM import pattern ─────────────────────────────────────────── -->
+      <section id="section-esm" aria-labelledby="esm-heading">
+        <div class="section-head">
+          <h2 id="esm-heading">ESM import pattern</h2>
+          <p>How to load Praescio as an ES module for optimal performance.</p>
+        </div>
+        <div class="section-body">
+          <div class="code-block" aria-label="ES module import code example">
+            <span class="cm">&lt;!-- 1. Preload the module for faster startup --&gt;</span><br />
+            <span class="at">&lt;link</span> <span class="kw">rel</span>=<span class="st"
+              >"modulepreload"</span
+            >
+            <span class="kw">href</span>=<span class="st">"./praescio.esm.js"</span>
+            <span class="at">/&gt;</span><br />
+            <br />
+            <span class="cm">&lt;!-- 2. Import and initialise using type="module" --&gt;</span
+            ><br />
+            <span class="at">&lt;script</span> <span class="kw">type</span>=<span class="st"
+              >"module"</span
+            ><span class="at">&gt;</span><br />
+            &nbsp;&nbsp;<span class="kw">import</span> { <span class="va">Praescio</span> }
+            <span class="kw">from</span> <span class="st">'./praescio.esm.js'</span>;<br />
+            <br />
+            &nbsp;&nbsp;<span class="kw">const</span> <span class="va">ac</span> =
+            <span class="kw">new</span> <span class="fn">Praescio</span>(<span class="st"
+              >'#my-input'</span
+            >, {<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="va">source</span>: [<span class="st"
+              >'Austria'</span
+            >, <span class="st">'Belgium'</span>, <span class="st">'Croatia'</span>],<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="va">maxItems</span>:
+            <span class="kw">8</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">onSelect</span>: (<span class="va">item</span>)
+            =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="va"
+              >item</span
+            >.<span class="va">label</span>),<br />
+            &nbsp;&nbsp;});<br />
+            <span class="at">&lt;/script&gt;</span>
+          </div>
+
+          <p style="font-size: 0.82rem; color: var(--c-text-muted); margin-top: 0.75rem">
+            Using <code>type="module"</code> defers execution automatically — no <code>defer</code>
+            attribute needed. The browser also handles module deduplication across imports.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Performance tips ───────────────────────────────────────────── -->
+      <section id="section-tips" aria-labelledby="tips-heading">
+        <div class="section-head">
+          <h2 id="tips-heading">Performance tips</h2>
+          <p>Techniques used on this page to maximise Lighthouse scores.</p>
+        </div>
+        <div class="section-body">
+          <ul class="tips-list" aria-label="Performance optimisation techniques">
+            <li>
+              <div class="tip-icon" aria-hidden="true">M</div>
+              <div class="tip-body">
+                <div class="tip-title">Module preload</div>
+                <div class="tip-desc">
+                  <code>&lt;link rel="modulepreload"&gt;</code> tells the browser to fetch and parse
+                  the ESM bundle during the HTML parse phase, before any script execution begins.
+                  This shaves tens of milliseconds off Time to Interactive.
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="tip-icon" aria-hidden="true">C</div>
+              <div class="tip-body">
+                <div class="tip-title">Non-blocking CSS load</div>
+                <div class="tip-desc">
+                  The plugin stylesheet uses the <code>onload</code> swap trick (<code
+                    >rel="preload" as="style"</code
+                  >
+                  switching to <code>rel="stylesheet"</code> on load) to prevent render-blocking. A
+                  <code>&lt;noscript&gt;</code> fallback ensures styles load without JavaScript.
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="tip-icon" aria-hidden="true">I</div>
+              <div class="tip-body">
+                <div class="tip-title">Inlined critical CSS</div>
+                <div class="tip-desc">
+                  CSS custom properties, base layout styles, and the Praescio panel dimensions are
+                  inlined in a <code>&lt;style&gt;</code> tag in <code>&lt;head&gt;</code>. This
+                  prevents Cumulative Layout Shift (CLS) by reserving space for the panel before the
+                  external stylesheet arrives.
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="tip-icon" aria-hidden="true">A</div>
+              <div class="tip-body">
+                <div class="tip-title">Accessibility first</div>
+                <div class="tip-desc">
+                  Single <code>&lt;h1&gt;</code>, proper landmark regions (<code>header</code>,
+                  <code>main</code>, <code>footer</code>, <code>nav</code>), visible focus styles,
+                  WCAG AA colour contrast, <code>aria-live</code> for dynamic updates, and a skip
+                  navigation link all contribute to a perfect accessibility score.
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="tip-icon" aria-hidden="true">S</div>
+              <div class="tip-body">
+                <div class="tip-title">SEO signals</div>
+                <div class="tip-desc">
+                  Descriptive <code>&lt;title&gt;</code>, <code>meta description</code>, canonical
+                  link, proper heading hierarchy, <code>lang</code> attribute on
+                  <code>&lt;html&gt;</code>, and <code>meta name="robots"</code> all improve
+                  crawlability and indexability.
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="tip-icon" aria-hidden="true">B</div>
+              <div class="tip-body">
+                <div class="tip-title">Best practices</div>
+                <div class="tip-desc">
+                  No deprecated APIs, no inline event handlers (CSP-friendly), valid HTML5, relative
+                  or HTTPS-only URLs, and explicit <code>width</code>/<code>height</code>
+                  on images prevent layout shifts and audit failures.
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="demos-footer">
+      Praescio v0.1.0 | Demos:
+      <a href="index.html">All demos</a> | <a href="print.html">Print demo</a> |
+      <a href="lighthouse.html">Lighthouse demo</a>
+    </footer>
+
+    <!-- ESM bundle — type="module" defers automatically, no render blocking -->
+    <script type="module">
+      import { Praescio } from '../dist/scripts/praescio.esm.js';
+
+      const countries = [
+        'Afghanistan',
+        'Albania',
+        'Algeria',
+        'Andorra',
+        'Angola',
+        'Argentina',
+        'Armenia',
+        'Australia',
+        'Austria',
+        'Azerbaijan',
+        'Bahamas',
+        'Bangladesh',
+        'Belgium',
+        'Bolivia',
+        'Brazil',
+        'Bulgaria',
+        'Cambodia',
+        'Canada',
+        'Chile',
+        'China',
+        'Colombia',
+        'Croatia',
+        'Cuba',
+        'Cyprus',
+        'Czech Republic',
+        'Denmark',
+        'Ecuador',
+        'Egypt',
+        'Estonia',
+        'Ethiopia',
+        'Finland',
+        'France',
+        'Germany',
+        'Ghana',
+        'Greece',
+        'Hungary',
+        'Iceland',
+        'India',
+        'Indonesia',
+        'Ireland',
+        'Israel',
+        'Italy',
+        'Japan',
+        'Jordan',
+        'Kenya',
+        'Latvia',
+        'Lebanon',
+        'Lithuania',
+        'Luxembourg',
+        'Malaysia',
+        'Mexico',
+        'Morocco',
+        'Netherlands',
+        'New Zealand',
+        'Nigeria',
+        'Norway',
+        'Pakistan',
+        'Peru',
+        'Philippines',
+        'Poland',
+        'Portugal',
+        'Romania',
+        'Russia',
+        'Saudi Arabia',
+        'Singapore',
+        'Slovakia',
+        'Slovenia',
+        'South Africa',
+        'South Korea',
+        'Spain',
+        'Sri Lanka',
+        'Sweden',
+        'Switzerland',
+        'Thailand',
+        'Tunisia',
+        'Turkey',
+        'Ukraine',
+        'United Kingdom',
+        'United States',
+        'Uruguay',
+        'Venezuela',
+        'Vietnam',
+        'Zimbabwe',
+      ];
+
+      const selectedValueEl = document.getElementById('selected-value-text');
+
+      new Praescio('#input-country', {
+        source: countries,
+        maxItems: 8,
+        onSelect: function (item) {
+          selectedValueEl.textContent = item.label;
+          selectedValueEl.classList.remove('empty');
+        },
+      });
+
+      // Dark mode toggle — no inline event handler for CSP compliance
+      const themeBtn = document.getElementById('theme-btn');
+      themeBtn.addEventListener('click', function () {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        themeBtn.setAttribute('aria-pressed', String(!isDark));
+        themeBtn.textContent = isDark ? 'Toggle dark mode' : 'Toggle light mode';
+      });
+    </script>
+  </body>
+</html>
