@@ -1,0 +1,109 @@
+/**
+ * @fileoverview Loading, empty, error slot styles, dividers, and the CSS-only
+ * spinner animation for the Praescio autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot affect elements with the same class names elsewhere.
+ *
+ * Slot classes are BEM modifier variants of a conceptual .praescio__slot block:
+ *   .praescio__slot--loading  — shown while suggestions are being fetched
+ *   .praescio__slot--empty    — shown when the query returns zero results
+ *   .praescio__slot--error    — shown when the fetch request fails
+ *
+ * The spinner is a pure-CSS rotating ring — no images or icon fonts required.
+ * It is suppressed by the reduced-motion media query in responsive.css.
+ *
+ * @keyframes praescio-spin is declared at root level — the CSS spec forbids
+ * @keyframes inside selector rules. The praescio- prefix scopes the name.
+ *
+ * @author Aditya B
+ */
+
+@import "./variables.css";
+
+/* ── State styles scoped to the panel component ──────────────────────────── */
+.praescio__panel {
+  /* ── Loading slot ────────────────────────────────────────────────────── */
+  /**
+   * Flex row that places the spinner icon to the left of the loading message.
+   * Uses the same horizontal padding as list items for visual alignment.
+   */
+  & .praescio__slot--loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem var(--praescio-item-padding-x, 0.75rem);
+    color: var(--praescio-slot-color);
+    font-size: var(--praescio-description-size);
+  }
+
+  /* ── Empty slot ──────────────────────────────────────────────────────── */
+  /**
+   * Centered "No results" message displayed when the filtered suggestion list
+   * is empty. text-align: center distinguishes it visually from regular items.
+   */
+  & .praescio__slot--empty {
+    padding: 0.75rem var(--praescio-item-padding-x, 0.75rem);
+    color: var(--praescio-slot-color);
+    font-size: var(--praescio-description-size);
+    text-align: center;
+  }
+
+  /* ── Error slot ──────────────────────────────────────────────────────── */
+  /**
+   * Error message shown when the suggestion fetch fails. Uses distinct
+   * error-color and error-bg tokens to communicate failure state clearly.
+   * Inset margin and reduced radius keep it visually contained within the panel.
+   */
+  & .praescio__slot--error {
+    padding: 0.75rem var(--praescio-item-padding-x, 0.75rem);
+    color: var(--praescio-error-color);
+    background-color: var(--praescio-error-bg);
+    font-size: var(--praescio-description-size);
+    border-radius: calc(var(--praescio-panel-radius) - 2px);
+    margin: 4px;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────────── */
+  /**
+   * Horizontal rule rendered as a <hr> element. border: none resets the
+   * browser default double-border; the single border-top provides the line.
+   */
+  & .praescio__divider {
+    border: none;
+    border-top: 1px solid var(--praescio-divider-color);
+    margin: 0.25rem 0;
+  }
+
+  /* ── CSS-only loading spinner ────────────────────────────────────────── */
+  /**
+   * Rotating ring built from a single element with two border colors.
+   * The top border uses the highlight color to create the illusion of a moving
+   * arc against the neutral track.
+   *
+   * The animation is suppressed in @media (prefers-reduced-motion: reduce) via
+   * responsive.css — the spinner remains visible as a static ring so loading
+   * state is still communicated.
+   */
+  & .praescio__spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--praescio-border-color);
+    border-top-color: var(--praescio-highlight-color);
+    border-radius: 50%;
+    animation: praescio-spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Full rotation keyframe used by .praescio__spinner ───────────────────── */
+/**
+ * @keyframes must live at root level — the CSS spec forbids @keyframes inside
+ * selector rules. The praescio- prefix scopes the name to this component.
+ */
+@keyframes praescio-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,1630 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Praescio — a modern, framework-agnostic TypeScript autocomplete and typeahead library. Live interactive demos."
+    />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="robots" content="index, follow" />
+    <title>Praescio — Demo</title>
+
+    <!-- Preload the plugin stylesheet so the browser fetches it as a high-priority
+       resource before it encounters the <link rel="stylesheet"> below. -->
+    <link rel="preload" href="../dist/styles/praescio.css" as="style" />
+    <!-- Praescio styles -->
+    <link rel="stylesheet" href="../dist/styles/praescio.css" />
+
+    <style>
+      /* ── Reset & base ────────────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --c-bg: #f8fafc;
+        --c-surface: #ffffff;
+        --c-border: #e2e8f0;
+        --c-text: #1e293b;
+        --c-text-muted: #64748b;
+        --c-accent: #3b82f6;
+        --c-accent-hover: #2563eb;
+        --c-tag: #eff6ff;
+        --c-tag-text: #1d4ed8;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--c-bg);
+        color: var(--c-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* ── Skip link ──────────────────────────────────────────────────────── */
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 0;
+        background: #3b82f6;
+        color: white;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        z-index: 10000;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* ── Page chrome ────────────────────────────────────────────────────── */
+      header {
+        background: var(--c-surface);
+        border-bottom: 1px solid var(--c-border);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      header h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      header span.version {
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: var(--c-tag);
+        color: var(--c-tag-text);
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+      }
+
+      header nav {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      header nav a {
+        font-size: 0.82rem;
+        color: var(--c-accent);
+        text-decoration: none;
+      }
+      header nav a:hover {
+        text-decoration: underline;
+      }
+
+      .theme-toggle {
+        background: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: 0.375rem;
+        padding: 0.35rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: var(--c-text-muted);
+        transition: background 0.15s;
+      }
+      .theme-toggle:hover {
+        background: var(--c-border);
+      }
+
+      /* ── Layout ─────────────────────────────────────────────────────────── */
+      main {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        display: grid;
+        gap: 3rem;
+      }
+
+      @media (min-width: 640px) {
+        main {
+          padding: 3rem 2rem;
+        }
+        header {
+          padding: 1.25rem 2rem;
+        }
+      }
+
+      section {
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: 0.75rem;
+        overflow: hidden;
+      }
+
+      .section-head {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--c-border);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .section-num {
+        flex-shrink: 0;
+        width: 1.75rem;
+        height: 1.75rem;
+        background: var(--c-accent);
+        color: #fff;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-top: 0.1rem;
+      }
+
+      .section-head-text h2 {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      .section-head-text p {
+        font-size: 0.85rem;
+        color: var(--c-text-muted);
+        margin-top: 0.15rem;
+      }
+
+      .section-body {
+        padding: 1.5rem;
+      }
+
+      /* ── Common input style ─────────────────────────────────────────────── */
+      .praescio-input {
+        width: 100%;
+        padding: 0.6rem 0.875rem;
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        background: var(--c-bg);
+        color: var(--c-text);
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .praescio-input:focus {
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      /* Contenteditable mimicking an input */
+      [contenteditable] {
+        width: 100%;
+        padding: 0.6rem 0.875rem;
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        background: var(--c-bg);
+        color: var(--c-text);
+        outline: none;
+        min-height: 2.5rem;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      [contenteditable]:focus {
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      /* ── Event log ──────────────────────────────────────────────────────── */
+      .event-log {
+        margin-top: 1rem;
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+        background: var(--c-bg);
+        font-size: 0.78rem;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        color: var(--c-text-muted);
+        max-height: 7rem;
+        overflow-y: auto;
+      }
+
+      .event-log-header {
+        padding: 0.35rem 0.75rem;
+        border-bottom: 1px solid var(--c-border);
+        color: var(--c-text-muted);
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .event-log-header button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--c-text-muted);
+        font-size: 0.7rem;
+        padding: 0;
+      }
+      .event-log-header button:hover {
+        color: var(--c-accent);
+      }
+
+      .event-log ul {
+        list-style: none;
+        padding: 0.25rem 0;
+      }
+      .event-log li {
+        padding: 0.15rem 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+      .event-log li .evt-name {
+        color: var(--c-accent);
+        font-weight: 600;
+      }
+      .event-log .empty-log {
+        padding: 0.35rem 0.75rem;
+        font-style: italic;
+      }
+
+      /* ── API buttons ─────────────────────────────────────────────────────── */
+      .btn-row {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+      .btn {
+        padding: 0.4rem 0.9rem;
+        border: 1px solid var(--c-border);
+        border-radius: 0.375rem;
+        background: var(--c-surface);
+        color: var(--c-text);
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: background 0.12s;
+      }
+      .btn:hover {
+        background: var(--c-bg);
+      }
+      .btn-primary {
+        background: var(--c-accent);
+        color: #fff;
+        border-color: var(--c-accent);
+      }
+      .btn-primary:hover {
+        background: var(--c-accent-hover);
+        border-color: var(--c-accent-hover);
+      }
+
+      /* ── Hint chip ───────────────────────────────────────────────────────── */
+      .hint {
+        font-size: 0.78rem;
+        color: var(--c-text-muted);
+        margin-top: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      kbd {
+        display: inline-block;
+        padding: 0.1rem 0.35rem;
+        border: 1px solid var(--c-border);
+        border-radius: 0.2rem;
+        background: var(--c-bg);
+        font-size: 0.72rem;
+        font-family: inherit;
+      }
+
+      /* ── Custom markup items ─────────────────────────────────────────────── */
+      .praescio__item--custom {
+        gap: 0.75rem;
+      }
+
+      /* ── Demo link sections ──────────────────────────────────────────────── */
+      .demo-link-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--c-text);
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .demo-link-card:hover {
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+      .demo-link-card .demo-link-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .demo-link-card .demo-link-desc {
+        font-size: 0.82rem;
+        color: var(--c-text-muted);
+        margin-top: 0.2rem;
+      }
+      .demo-link-card .demo-link-arrow {
+        font-size: 1.2rem;
+        color: var(--c-accent);
+        flex-shrink: 0;
+      }
+
+      /* ── Footer ─────────────────────────────────────────────────────────── */
+      .demos-footer {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 2rem;
+        border-top: 1px solid var(--c-border);
+        font-size: 0.8rem;
+        color: var(--c-text-muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .demos-footer a {
+        color: var(--c-accent);
+        text-decoration: none;
+      }
+      .demos-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ── Dark theme ─────────────────────────────────────────────────────── */
+      [data-theme='dark'] {
+        --c-bg: #0f172a;
+        --c-surface: #1e293b;
+        --c-border: #334155;
+        --c-text: #f1f5f9;
+        --c-text-muted: #94a3b8;
+        --c-tag: #1e3a8a;
+        --c-tag-text: #93c5fd;
+      }
+
+      [data-theme='dark'] .praescio__panel {
+        --praescio-bg: #1e293b;
+        --praescio-border-color: #334155;
+        --praescio-item-hover-bg: #273549;
+        --praescio-item-active-bg: #1e3a5f;
+        --praescio-item-active-border: #60a5fa;
+        --praescio-description-color: #94a3b8;
+        --praescio-group-label-color: #64748b;
+        --praescio-divider-color: #334155;
+      }
+
+      [data-theme='dark'] .demos-footer {
+        border-top-color: var(--c-border);
+        color: var(--c-text-muted);
+      }
+
+      /* ── Print styles ────────────────────────────────────────────────────── */
+      @media print {
+        .theme-toggle {
+          display: none;
+        }
+        header nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header>
+      <h1>Praescio</h1>
+      <span class="version">v0.1.0</span>
+      <nav aria-label="Demo pages">
+        <a href="index.html">All demos</a>
+        <a href="print.html">Print demo</a>
+        <a href="lighthouse.html">Lighthouse demo</a>
+        <button class="theme-toggle" id="theme-btn" aria-pressed="false">Toggle dark mode</button>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <!-- ── 1. Basic text autocomplete ─────────────────────────────────── -->
+      <section id="demo-basic">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">1</div>
+          <div class="section-head-text">
+            <h2>Basic — static array source</h2>
+            <p>Plain string array, substring match, highlight enabled.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-basic"
+            class="praescio-input"
+            type="text"
+            placeholder="Search countries…"
+            autocomplete="off"
+          />
+          <div class="event-log" id="log-basic">
+            <div class="event-log-header">
+              <span>Events</span>
+              <button id="clear-log-basic" aria-label="Clear basic autocomplete event log">
+                clear
+              </button>
+            </div>
+            <ul id="log-basic-list">
+              <li class="empty-log">No events yet.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 2. Description items ───────────────────────────────────────── -->
+      <section id="demo-description">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">2</div>
+          <div class="section-head-text">
+            <h2>Description items</h2>
+            <p>Two-line items with a main label and secondary description text.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-desc"
+            class="praescio-input"
+            type="text"
+            placeholder="Search tech stack…"
+            autocomplete="off"
+          />
+        </div>
+      </section>
+
+      <!-- ── 3. Rich items with badges ──────────────────────────────────── -->
+      <section id="demo-rich">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">3</div>
+          <div class="section-head-text">
+            <h2>Rich items — icon + description + badge</h2>
+            <p>
+              Team-member lookup with avatar initials, role description, and a department badge.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-rich"
+            class="praescio-input"
+            type="text"
+            placeholder="Find a team member…"
+            autocomplete="off"
+          />
+        </div>
+      </section>
+
+      <!-- ── 4. Grouped results ─────────────────────────────────────────── -->
+      <section id="demo-groups">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">4</div>
+          <div class="section-head-text">
+            <h2>Grouped results — <code>groupBy</code> option</h2>
+            <p>Items are automatically partitioned and labelled by category.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-groups"
+            class="praescio-input"
+            type="text"
+            placeholder="Search docs, pages, settings…"
+            autocomplete="off"
+          />
+        </div>
+      </section>
+
+      <!-- ── 5. Async / simulated fetch ────────────────────────────────── -->
+      <section id="demo-async">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">5</div>
+          <div class="section-head-text">
+            <h2>Async source with custom loading &amp; empty slots</h2>
+            <p>
+              Simulates a 1.5 s network delay so the spinner is easy to observe. Custom loading
+              spinner and empty-state slot.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-async"
+            class="praescio-input"
+            type="text"
+            placeholder="Type any word…"
+            autocomplete="off"
+          />
+          <div class="hint">
+            Results appear after ~1.5 s — the <strong>loading spinner</strong> is visible in the
+            panel while waiting.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 6. Fuzzy match plugin ─────────────────────────────────────── -->
+      <section id="demo-fuzzy">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">6</div>
+          <div class="section-head-text">
+            <h2>Fuzzy match plugin</h2>
+            <p>Tolerates typos using Levenshtein distance (threshold&nbsp;=&nbsp;2).</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-fuzzy"
+            class="praescio-input"
+            type="text"
+            placeholder='Try "Javascritp", "Typscript", "Reakt"…'
+            autocomplete="off"
+          />
+        </div>
+      </section>
+
+      <!-- ── 7. @mention mode ───────────────────────────────────────────── -->
+      <section id="demo-mention">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">7</div>
+          <div class="section-head-text">
+            <h2>@mention mode — <code>contenteditable</code> trigger</h2>
+            <p>Type <kbd>@</kbd> anywhere in the editor to trigger the suggestion panel.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <div
+            id="input-mention"
+            contenteditable="true"
+            placeholder="Start typing… press @ to mention someone"
+            style="user-select: text"
+            data-placeholder="Start typing… press @ to mention someone"
+            aria-label="Mention editor — type @ to trigger suggestions"
+            aria-multiline="true"
+          ></div>
+          <style>
+            #input-mention:empty::before {
+              content: attr(data-placeholder);
+              color: var(--c-text-muted);
+              pointer-events: none;
+            }
+          </style>
+          <div class="hint">Cursor position is preserved; the @word is replaced on selection.</div>
+        </div>
+      </section>
+
+      <!-- ── 8. Keyboard shortcut plugin ───────────────────────────────── -->
+      <section id="demo-shortcut">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">8</div>
+          <div class="section-head-text">
+            <h2>Keyboard shortcut plugin — <kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd></h2>
+            <p>Press the shortcut from anywhere on the page to focus and open the panel.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-shortcut"
+            class="praescio-input"
+            type="text"
+            placeholder="Press ⌘K / Ctrl+K to focus…"
+            autocomplete="off"
+          />
+          <div class="hint">
+            Try pressing <kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd> while focusing elsewhere on the page.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 9. Programmatic API ────────────────────────────────────────── -->
+      <section id="demo-api">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">9</div>
+          <div class="section-head-text">
+            <h2>Programmatic API</h2>
+            <p>Control the instance via the public API methods.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-api"
+            class="praescio-input"
+            type="text"
+            placeholder="Controlled from the buttons below…"
+            autocomplete="off"
+          />
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-open">open()</button>
+            <button class="btn" id="btn-close">close()</button>
+            <button class="btn" id="btn-set-apple">setQuery("apple")</button>
+            <button class="btn" id="btn-refresh">refresh()</button>
+            <button class="btn" id="btn-clear-cache">clearCache()</button>
+          </div>
+          <div class="event-log" id="log-api">
+            <div class="event-log-header">
+              <span>Events</span>
+              <button id="clear-log-api" aria-label="Clear programmatic API event log">
+                clear
+              </button>
+            </div>
+            <ul id="log-api-list">
+              <li class="empty-log">No events yet.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 10. minChars ───────────────────────────────────────────────── -->
+      <section id="demo-minchars">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">10</div>
+          <div class="section-head-text">
+            <h2>Minimum character threshold — <code>minChars: 3</code></h2>
+            <p>
+              The typeahead stays silent until the input reaches 3 characters. A live counter shows
+              how many more are needed.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <div style="position: relative">
+            <input
+              id="input-minchars"
+              class="praescio-input"
+              type="text"
+              placeholder="Type at least 3 characters…"
+              autocomplete="off"
+              style="padding-right: 4rem"
+            />
+            <span
+              id="minchars-counter"
+              style="
+                position: absolute;
+                right: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 0.78rem;
+                font-family: monospace;
+                pointer-events: none;
+              "
+              aria-hidden="true"
+            ></span>
+          </div>
+          <div class="hint" id="minchars-hint" aria-live="polite">
+            Start typing — the panel only opens once you reach <strong>3 characters</strong>.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 11. Link items ────────────────────────────────────────────── -->
+      <section id="demo-links">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">11</div>
+          <div class="section-head-text">
+            <h2>Link items — navigate on click or <kbd>Enter</kbd></h2>
+            <p>
+              Clicking or pressing Enter navigates to the item's <code>href</code>; the input value
+              is <strong>not</strong> changed. The <code>select</code> event still fires for
+              analytics.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-links"
+            class="praescio-input"
+            type="text"
+            placeholder="Search docs pages…"
+            autocomplete="off"
+          />
+          <div class="hint">
+            Items render as <code>&lt;a&gt;</code> elements — try hovering to see the URL in the
+            status bar, then click to navigate.
+          </div>
+          <div class="event-log" id="log-links">
+            <div class="event-log-header">
+              <span>Events</span>
+              <button id="clear-log-links" aria-label="Clear link items event log">clear</button>
+            </div>
+            <ul id="log-links-list">
+              <li class="empty-log">No events yet.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 12. Custom markup ──────────────────────────────────────────── -->
+      <section id="demo-custom-markup">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">12</div>
+          <div class="section-head-text">
+            <h2>Custom markup — images with text</h2>
+            <p>
+              Use <code>type: 'custom'</code> with either an <code>html</code> string or a
+              <code>render</code> callback to put any markup inside a dropdown item.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <input
+            id="input-custom-markup"
+            class="praescio-input"
+            type="text"
+            placeholder="Search products…"
+            autocomplete="off"
+          />
+          <div class="hint">
+            Each item contains an image, a label, and a price badge — built with the
+            <code>html</code> shorthand on <code>CustomItem</code>.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 13. Print-friendly ─────────────────────────────────────────── -->
+      <section id="demo-print">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">13</div>
+          <div class="section-head-text">
+            <h2>Print-friendly</h2>
+            <p>
+              Demonstrates how Praescio behaves when printing a page — the panel is hidden, form
+              values are preserved.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <a href="print.html" class="demo-link-card">
+            <div>
+              <div class="demo-link-title">Print demo page</div>
+              <div class="demo-link-desc">
+                Try filling in the autocomplete then using Ctrl+P / Cmd+P to see print behaviour.
+              </div>
+            </div>
+            <span class="demo-link-arrow" aria-hidden="true">&#8594;</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ── 14. Lighthouse-optimized ──────────────────────────────────── -->
+      <section id="demo-lighthouse">
+        <div class="section-head">
+          <div class="section-num" aria-hidden="true">14</div>
+          <div class="section-head-text">
+            <h2>Lighthouse-optimized</h2>
+            <p>
+              A demo targeting 95+ on all Lighthouse metrics — performance, accessibility, best
+              practices, and SEO.
+            </p>
+          </div>
+        </div>
+        <div class="section-body">
+          <a href="lighthouse.html" class="demo-link-card">
+            <div>
+              <div class="demo-link-title">Lighthouse demo page</div>
+              <div class="demo-link-desc">
+                Uses module preload, inlined critical CSS, and the ESM bundle for optimal scores.
+              </div>
+            </div>
+            <span class="demo-link-arrow" aria-hidden="true">&#8594;</span>
+          </a>
+        </div>
+      </section>
+    </main>
+    <!-- /main -->
+
+    <footer class="demos-footer">
+      Praescio v0.1.0 | Demos:
+      <a href="index.html">All demos</a> | <a href="print.html">Print demo</a> |
+      <a href="lighthouse.html">Lighthouse demo</a>
+    </footer>
+
+    <!-- Praescio UMD bundle — defer keeps it non-render-blocking -->
+    <script src="../dist/scripts/praescio.umd.js" defer></script>
+
+    <script defer>
+      /* global Praescio */
+      'use strict';
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const { Praescio: AC, fuzzyMatch, keyboardShortcut, recentSearches } = window.Praescio;
+
+        // ── Helpers ─────────────────────────────────────────────────────────────
+
+        /**
+         * Append a line to an event log element.
+         * @param {string} logId - The id of the <ul> element (without the '-list' suffix).
+         * @param {string} name  - Event name.
+         * @param {string} detail - Formatted detail string.
+         */
+        function logEvent(logId, name, detail) {
+          const list = document.getElementById(logId + '-list');
+          if (!list) return;
+          const placeholder = list.querySelector('.empty-log');
+          if (placeholder) placeholder.remove();
+
+          const li = document.createElement('li');
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'evt-name';
+          nameSpan.textContent = name;
+          const detailSpan = document.createElement('span');
+          detailSpan.textContent = detail;
+          li.append(nameSpan, ' ', detailSpan);
+          list.prepend(li);
+          while (list.children.length > 10) list.lastElementChild.remove();
+        }
+
+        /** Clear an event log. */
+        function clearLog(logId) {
+          const list = document.getElementById(logId + '-list');
+          if (!list) return;
+          list.innerHTML = '<li class="empty-log">No events yet.</li>';
+        }
+
+        document
+          .getElementById('clear-log-basic')
+          .addEventListener('click', () => clearLog('log-basic'));
+        document
+          .getElementById('clear-log-api')
+          .addEventListener('click', () => clearLog('log-api'));
+        document
+          .getElementById('clear-log-links')
+          .addEventListener('click', () => clearLog('log-links'));
+
+        // ── 1. Basic — static array ──────────────────────────────────────────────
+        const countries = [
+          'Afghanistan',
+          'Albania',
+          'Algeria',
+          'Andorra',
+          'Angola',
+          'Argentina',
+          'Armenia',
+          'Australia',
+          'Austria',
+          'Azerbaijan',
+          'Bahamas',
+          'Bangladesh',
+          'Belgium',
+          'Bolivia',
+          'Brazil',
+          'Bulgaria',
+          'Cambodia',
+          'Canada',
+          'Chile',
+          'China',
+          'Colombia',
+          'Croatia',
+          'Cuba',
+          'Cyprus',
+          'Czech Republic',
+          'Denmark',
+          'Ecuador',
+          'Egypt',
+          'Estonia',
+          'Ethiopia',
+          'Finland',
+          'France',
+          'Germany',
+          'Ghana',
+          'Greece',
+          'Hungary',
+          'Iceland',
+          'India',
+          'Indonesia',
+          'Ireland',
+          'Israel',
+          'Italy',
+          'Japan',
+          'Jordan',
+          'Kenya',
+          'Latvia',
+          'Lebanon',
+          'Lithuania',
+          'Luxembourg',
+          'Malaysia',
+          'Mexico',
+          'Morocco',
+          'Netherlands',
+          'New Zealand',
+          'Nigeria',
+          'Norway',
+          'Pakistan',
+          'Peru',
+          'Philippines',
+          'Poland',
+          'Portugal',
+          'Romania',
+          'Russia',
+          'Saudi Arabia',
+          'Singapore',
+          'Slovakia',
+          'Slovenia',
+          'South Africa',
+          'South Korea',
+          'Spain',
+          'Sri Lanka',
+          'Sweden',
+          'Switzerland',
+          'Thailand',
+          'Tunisia',
+          'Turkey',
+          'Ukraine',
+          'United Kingdom',
+          'United States',
+          'Uruguay',
+          'Venezuela',
+          'Vietnam',
+          'Zimbabwe',
+        ];
+
+        const basicAC = new AC('#input-basic', {
+          source: countries,
+          maxItems: 8,
+          onSelect: (item) => logEvent('log-basic', 'select', item.label),
+          onOpen: () => logEvent('log-basic', 'open', ''),
+          onClose: () => logEvent('log-basic', 'close', ''),
+        });
+
+        basicAC.on('query', (q) => logEvent('log-basic', 'query', `"${q}"`));
+
+        // ── 2. Description items ─────────────────────────────────────────────────
+        const techItems = [
+          {
+            type: 'description',
+            label: 'TypeScript',
+            description: 'Typed superset of JavaScript by Microsoft',
+          },
+          {
+            type: 'description',
+            label: 'JavaScript',
+            description: 'Dynamic scripting language for the web',
+          },
+          { type: 'description', label: 'React', description: 'UI component library by Meta' },
+          {
+            type: 'description',
+            label: 'Vue',
+            description: 'Progressive framework for building UIs',
+          },
+          {
+            type: 'description',
+            label: 'Angular',
+            description: 'Platform for building web applications by Google',
+          },
+          {
+            type: 'description',
+            label: 'Svelte',
+            description: 'Compiler-based reactive framework',
+          },
+          { type: 'description', label: 'Node.js', description: 'JavaScript runtime built on V8' },
+          {
+            type: 'description',
+            label: 'Deno',
+            description: 'Secure JavaScript/TypeScript runtime',
+          },
+          {
+            type: 'description',
+            label: 'Rust',
+            description: 'Systems language focused on safety and speed',
+          },
+          { type: 'description', label: 'Go', description: 'Statically typed language by Google' },
+          {
+            type: 'description',
+            label: 'Python',
+            description: 'High-level, general-purpose scripting language',
+          },
+          {
+            type: 'description',
+            label: 'Ruby',
+            description: 'Dynamic, object-oriented programming language',
+          },
+          {
+            type: 'description',
+            label: 'Elixir',
+            description: 'Functional language built on the Erlang VM',
+          },
+          {
+            type: 'description',
+            label: 'Haskell',
+            description: 'Purely functional programming language',
+          },
+        ];
+
+        new AC('#input-desc', {
+          source: techItems,
+          maxItems: 6,
+        });
+
+        // ── 3. Rich items ────────────────────────────────────────────────────────
+        /**
+         * Build an SVG avatar circle with initials for the given name.
+         * @param {string} name
+         * @returns {string} SVG markup string
+         */
+        function avatarSvg(name) {
+          const initials = name
+            .split(' ')
+            .map((w) => w[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase();
+          const hue = (name.charCodeAt(0) * 37 + name.charCodeAt(name.length - 1) * 13) % 360;
+          const bg = `hsl(${hue}, 60%, 50%)`;
+          return (
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="img" aria-label="${initials} avatar">` +
+            `<title>${initials} avatar</title>` +
+            `<circle cx="20" cy="20" r="20" fill="${bg}"/>` +
+            `<text x="20" y="26" text-anchor="middle" font-size="14" font-family="system-ui" fill="white">${initials}</text>` +
+            `</svg>`
+          );
+        }
+
+        const teamMembers = [
+          {
+            type: 'rich',
+            label: 'Alice Johnson',
+            description: 'Engineering · Berlin',
+            icon: avatarSvg('Alice Johnson'),
+            badge: 'Admin',
+            value: 'alice',
+          },
+          {
+            type: 'rich',
+            label: 'Bob Martinez',
+            description: 'Product · San Francisco',
+            icon: avatarSvg('Bob Martinez'),
+            badge: 'PM',
+            value: 'bob',
+          },
+          {
+            type: 'rich',
+            label: 'Carol Williams',
+            description: 'Design · London',
+            icon: avatarSvg('Carol Williams'),
+            badge: 'Lead',
+            value: 'carol',
+          },
+          {
+            type: 'rich',
+            label: 'David Park',
+            description: 'Engineering · Seoul',
+            icon: avatarSvg('David Park'),
+            badge: 'SWE',
+            value: 'david',
+          },
+          {
+            type: 'rich',
+            label: 'Eva Müller',
+            description: 'Data · Munich',
+            icon: avatarSvg('Eva Müller'),
+            badge: 'DS',
+            value: 'eva',
+          },
+          {
+            type: 'rich',
+            label: 'Frank Chen',
+            description: 'Infrastructure · Singapore',
+            icon: avatarSvg('Frank Chen'),
+            badge: 'DevOps',
+            value: 'frank',
+          },
+          {
+            type: 'rich',
+            label: 'Grace Okafor',
+            description: 'Engineering · Lagos',
+            icon: avatarSvg('Grace Okafor'),
+            badge: 'SWE',
+            value: 'grace',
+          },
+          {
+            type: 'rich',
+            label: 'Henry Dupont',
+            description: 'Engineering · Paris',
+            icon: avatarSvg('Henry Dupont'),
+            badge: 'SWE',
+            value: 'henry',
+          },
+        ];
+
+        new AC('#input-rich', {
+          source: teamMembers,
+          maxItems: 6,
+          onSelect: (item) => {
+            document.getElementById('input-rich').value = item.label;
+          },
+        });
+
+        // ── 4. Grouped results ───────────────────────────────────────────────────
+        const groupedData = [
+          {
+            type: 'text',
+            label: 'Getting started',
+            value: '/docs/getting-started',
+            meta: { category: 'Docs' },
+          },
+          { type: 'text', label: 'API reference', value: '/docs/api', meta: { category: 'Docs' } },
+          {
+            type: 'text',
+            label: 'Configuration guide',
+            value: '/docs/config',
+            meta: { category: 'Docs' },
+          },
+          {
+            type: 'text',
+            label: 'Plugin authoring',
+            value: '/docs/plugins',
+            meta: { category: 'Docs' },
+          },
+          { type: 'text', label: 'Home', value: '/pages/home', meta: { category: 'Pages' } },
+          { type: 'text', label: 'Pricing', value: '/pages/pricing', meta: { category: 'Pages' } },
+          { type: 'text', label: 'Blog', value: '/pages/blog', meta: { category: 'Pages' } },
+          {
+            type: 'text',
+            label: 'Notifications',
+            value: '/settings/notifications',
+            meta: { category: 'Settings' },
+          },
+          {
+            type: 'text',
+            label: 'Profile',
+            value: '/settings/profile',
+            meta: { category: 'Settings' },
+          },
+          {
+            type: 'text',
+            label: 'Billing',
+            value: '/settings/billing',
+            meta: { category: 'Settings' },
+          },
+          {
+            type: 'text',
+            label: 'Security',
+            value: '/settings/security',
+            meta: { category: 'Settings' },
+          },
+        ];
+
+        new AC('#input-groups', {
+          source: groupedData,
+          maxItems: 0,
+          groupBy: (item) => item.meta?.category,
+          sortGroups: (a, b) => {
+            const order = ['Docs', 'Pages', 'Settings'];
+            return order.indexOf(a) - order.indexOf(b);
+          },
+        });
+
+        // ── 5. Async with custom slots ────────────────────────────────────────────
+
+        /** Build a loading spinner element. */
+        function makeLoadingEl() {
+          const el = document.createElement('div');
+          el.style.cssText =
+            'display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;color:#64748b;font-size:.85rem;';
+          el.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+          <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+      Searching…`;
+          return el;
+        }
+
+        /**
+         * Fake async source — returns items matching query after a 1.5 s delay.
+         * @param {string} query
+         * @param {AbortSignal} signal
+         * @returns {Promise<{label:string}[]>}
+         */
+        async function asyncSource(query, signal) {
+          await new Promise((resolve, reject) => {
+            const t = setTimeout(resolve, 1500);
+            signal.addEventListener('abort', () => {
+              clearTimeout(t);
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
+          });
+          const words = [
+            'algorithm',
+            'abstraction',
+            'architecture',
+            'bandwidth',
+            'boolean',
+            'bytecode',
+            'callback',
+            'closure',
+            'concurrency',
+            'container',
+            'daemon',
+            'database',
+            'debugging',
+            'deployment',
+            'directive',
+            'encapsulation',
+            'endpoint',
+            'event loop',
+            'execution',
+            'framework',
+            'garbage collection',
+            'heuristic',
+            'idempotent',
+            'immutable',
+            'interface',
+            'iteration',
+            'linter',
+            'middleware',
+            'mutation',
+            'namespace',
+            'observable',
+            'orchestration',
+            'polymorphism',
+            'prototype',
+            'recursion',
+            'refactoring',
+            'runtime',
+            'serialisation',
+            'singleton',
+            'state machine',
+          ];
+          const q = query.toLowerCase();
+          return words.filter((w) => w.includes(q)).map((w) => ({ label: w }));
+        }
+
+        new AC('#input-async', {
+          source: asyncSource,
+          minChars: 2,
+          debounce: 150,
+          cache: 'stale-while-revalidate',
+          slots: {
+            loading: makeLoadingEl(),
+            empty: (q) => {
+              const el = document.createElement('div');
+              el.style.cssText =
+                'padding:.75rem 1rem;color:#64748b;font-size:.85rem;display:flex;align-items:center;gap:.4rem;';
+              // q is set via textContent — safe from XSS
+              el.innerHTML =
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> No results for "<strong></strong>"';
+              const strong = el.querySelector('strong');
+              if (strong) strong.textContent = q;
+              return el;
+            },
+          },
+        });
+
+        // ── 6. Fuzzy match plugin ────────────────────────────────────────────────
+        const languages = [
+          'JavaScript',
+          'TypeScript',
+          'Python',
+          'Ruby',
+          'Rust',
+          'Go',
+          'Java',
+          'C#',
+          'C++',
+          'Swift',
+          'Kotlin',
+          'Scala',
+          'Elixir',
+          'Haskell',
+          'Clojure',
+          'React',
+          'Angular',
+          'Vue',
+          'Svelte',
+          'Solid',
+        ];
+
+        new AC('#input-fuzzy', {
+          source: languages,
+          maxItems: 8,
+          plugins: [fuzzyMatch({ threshold: 2 })],
+        });
+
+        // ── 7. @mention mode ─────────────────────────────────────────────────────
+        const mentionPeople = [
+          { type: 'text', label: 'alice', value: '@alice' },
+          { type: 'text', label: 'bob', value: '@bob' },
+          { type: 'text', label: 'carol', value: '@carol' },
+          { type: 'text', label: 'david', value: '@david' },
+          { type: 'text', label: 'eva', value: '@eva' },
+          { type: 'text', label: 'frank', value: '@frank' },
+          { type: 'text', label: 'grace', value: '@grace' },
+          { type: 'text', label: 'henry', value: '@henry' },
+        ];
+
+        new AC('#input-mention', {
+          source: mentionPeople,
+          trigger: '@',
+          insertTemplate: (item) => item.value + ' ',
+          minChars: 0,
+          maxItems: 6,
+        });
+
+        // ── 8. Keyboard shortcut plugin ───────────────────────────────────────────
+        const commandItems = [
+          { type: 'text', label: 'New file', value: 'new-file' },
+          { type: 'text', label: 'Open file…', value: 'open-file' },
+          { type: 'text', label: 'Save all', value: 'save-all' },
+          { type: 'text', label: 'Toggle sidebar', value: 'sidebar' },
+          { type: 'text', label: 'Command palette', value: 'cmd-palette' },
+          { type: 'text', label: 'Go to line…', value: 'goto-line' },
+          { type: 'text', label: 'Format document', value: 'format-doc' },
+          { type: 'text', label: 'Rename symbol…', value: 'rename-symbol' },
+          { type: 'text', label: 'Find in files', value: 'find-files' },
+          { type: 'text', label: 'Toggle terminal', value: 'terminal' },
+        ];
+
+        const shortcutAC = new AC('#input-shortcut', {
+          source: commandItems,
+          maxItems: 8,
+          openOnFocus: true,
+          minChars: 0,
+          plugins: [keyboardShortcut({ key: 'k' })],
+        });
+
+        shortcutAC.on('open', () => {
+          document.getElementById('input-shortcut').focus();
+        });
+
+        // ── 9. Programmatic API ───────────────────────────────────────────────────
+        const apiAC = new AC('#input-api', {
+          source: [
+            'apple',
+            'apricot',
+            'avocado',
+            'banana',
+            'blueberry',
+            'cherry',
+            'date',
+            'elderberry',
+            'fig',
+            'grape',
+            'guava',
+            'kiwi',
+            'lemon',
+            'lime',
+            'mango',
+            'melon',
+            'nectarine',
+            'orange',
+            'papaya',
+            'peach',
+            'pear',
+            'pineapple',
+            'plum',
+            'pomegranate',
+            'raspberry',
+            'strawberry',
+            'tangerine',
+            'watermelon',
+          ],
+          maxItems: 7,
+          cache: 'none',
+        });
+
+        [
+          'open',
+          'close',
+          'query',
+          'select',
+          'fetchStart',
+          'fetchEnd',
+          'highlight',
+          'empty',
+          'destroy',
+        ].forEach((evt) => {
+          apiAC.on(evt, (...args) => {
+            const detail = args
+              .map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a)))
+              .join(', ');
+            logEvent('log-api', evt, detail);
+          });
+        });
+
+        document.getElementById('btn-open').addEventListener('click', () => apiAC.open());
+        document.getElementById('btn-close').addEventListener('click', () => apiAC.close());
+        document
+          .getElementById('btn-set-apple')
+          .addEventListener('click', () => apiAC.setQuery('apple'));
+        document.getElementById('btn-refresh').addEventListener('click', () => apiAC.refresh());
+        document.getElementById('btn-clear-cache').addEventListener('click', () => {
+          apiAC.clearCache();
+          logEvent('log-api', 'clearCache', '');
+        });
+
+        // ── 10. minChars ─────────────────────────────────────────────────────────────
+        const MIN_CHARS = 3;
+
+        new AC('#input-minchars', {
+          source: [
+            'abstract',
+            'algorithm',
+            'allocation',
+            'boolean',
+            'breakpoint',
+            'callback',
+            'closure',
+            'compiler',
+            'container',
+            'daemon',
+            'database',
+            'debugger',
+            'deployment',
+            'encapsulation',
+            'endpoint',
+            'framework',
+            'function',
+            'garbage',
+            'heuristic',
+            'immutable',
+            'interface',
+            'iterator',
+            'linter',
+            'middleware',
+            'mutation',
+            'namespace',
+            'observable',
+            'parameter',
+            'polymorphism',
+            'prototype',
+            'recursion',
+            'refactor',
+            'runtime',
+            'singleton',
+            'statement',
+            'throttle',
+            'typescript',
+            'variable',
+            'virtual',
+            'webpack',
+          ],
+          minChars: MIN_CHARS,
+          maxItems: 8,
+          debounce: 150,
+        });
+
+        const mincharsInput = document.getElementById('input-minchars');
+        const mincharsCounter = document.getElementById('minchars-counter');
+        const mincharsHint = document.getElementById('minchars-hint');
+
+        mincharsInput.addEventListener('input', () => {
+          const len = mincharsInput.value.trim().length;
+          const remaining = Math.max(0, MIN_CHARS - len);
+
+          if (remaining > 0) {
+            mincharsCounter.textContent = `${len}/${MIN_CHARS}`;
+            mincharsCounter.style.color = 'var(--c-text-muted)';
+            mincharsHint.textContent = `${remaining} more character${remaining > 1 ? 's' : ''} needed before the typeahead fires.`;
+          } else {
+            mincharsCounter.textContent = `${len}`;
+            mincharsCounter.style.color = 'var(--c-accent)';
+            const strong = document.createElement('strong');
+            strong.textContent = `"${mincharsInput.value}"`;
+            mincharsHint.textContent = 'Typeahead active — showing results for ';
+            mincharsHint.appendChild(strong);
+            mincharsHint.appendChild(document.createTextNode('.'));
+          }
+        });
+
+        // ── 11. Link items ───────────────────────────────────────────────────────
+        const docLinks = [
+          {
+            type: 'link',
+            label: 'Getting started',
+            href: '/docs/getting-started',
+            description: 'Installation and quick-start guide',
+          },
+          {
+            type: 'link',
+            label: 'API reference',
+            href: '/docs/api',
+            description: 'Full options, methods, and events',
+          },
+          {
+            type: 'link',
+            label: 'Item types',
+            href: '/docs/item-types',
+            description: 'text, link, rich, custom, and more',
+          },
+          {
+            type: 'link',
+            label: 'Plugins',
+            href: '/docs/plugins',
+            description: 'fuzzyMatch, recentSearches, analytics',
+          },
+          {
+            type: 'link',
+            label: 'CSS & theming',
+            href: '/docs/css',
+            description: 'Custom properties and dark mode',
+          },
+          {
+            type: 'link',
+            label: 'GitHub',
+            href: 'https://github.com',
+            target: '_blank',
+            description: 'Source code on GitHub',
+          },
+        ];
+
+        const linksAC = new AC('#input-links', {
+          source: docLinks,
+          maxItems: 6,
+          highlight: true,
+          onSelect: (item) => logEvent('log-links', 'select', item.label),
+        });
+
+        linksAC.on('open', () => logEvent('log-links', 'open', ''));
+
+        // ── 12. Custom markup ────────────────────────────────────────────────────
+
+        /**
+         * Build a product item using the `html` shorthand on CustomItem.
+         * The values (name, price, emoji) are developer-controlled constants —
+         * not user input — so direct interpolation into html is safe here.
+         * @param {string} emoji
+         * @param {string} name
+         * @param {string} price
+         * @param {string} value
+         */
+        function productItem(emoji, name, price, value) {
+          return {
+            type: 'custom',
+            label: name,
+            value,
+            html:
+              `<span style="font-size:1.4rem;line-height:1;flex-shrink:0" aria-hidden="true">${emoji}</span>` +
+              `<span style="flex:1;min-width:0">` +
+              `<span style="display:block;font-weight:500">${name}</span>` +
+              `<span style="display:block;font-size:.78rem;color:var(--praescio-description-color,#6b7280)">${price}</span>` +
+              `</span>`,
+          };
+        }
+
+        const products = [
+          productItem('🍎', 'Apple MacBook Air', '$1,099', 'macbook-air'),
+          productItem('🖥️', 'Apple Studio Display', '$1,599', 'studio-display'),
+          productItem('⌨️', 'Magic Keyboard', '$99', 'magic-keyboard'),
+          productItem('🖱️', 'Magic Mouse', '$79', 'magic-mouse'),
+          productItem('📱', 'iPhone 16', '$799', 'iphone-16'),
+          productItem('⌚', 'Apple Watch Series 10', '$399', 'watch-s10'),
+          productItem('🎧', 'AirPods Pro', '$249', 'airpods-pro'),
+          productItem('📦', 'Mac mini', '$599', 'mac-mini'),
+        ];
+
+        new AC('#input-custom-markup', {
+          source: products,
+          maxItems: 6,
+          highlight: false,
+        });
+
+        // ── Dark mode toggle ──────────────────────────────────────────────────────
+        const themeBtn = document.getElementById('theme-btn');
+        themeBtn.addEventListener('click', () => {
+          const html = document.documentElement;
+          const isDark = html.getAttribute('data-theme') === 'dark';
+          html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+          themeBtn.setAttribute('aria-pressed', String(!isDark));
+          themeBtn.textContent = isDark ? 'Toggle dark mode' : 'Toggle light mode';
+        });
+      }); // end DOMContentLoaded
+    </script>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+/**
+ * @fileoverview List item styles for the Praescio autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot accidentally style elements with the same class names
+ * outside the dropdown.
+ *
+ * CSS nesting IS used for modifier classes and pseudo-selectors that are
+ * intrinsically tied to the parent block (hover, focus-visible, --highlighted).
+ *
+ * Accessibility:
+ *   - Items meet WCAG 2.5.5 minimum 44×44 px touch target (--praescio-item-min-height).
+ *   - Highlighted / selected state uses both background and border so it is
+ *     distinguishable in Windows High Contrast / forced-colors mode.
+ *   - forced-colors override ensures .praescio__highlight remains visible when
+ *     the OS replaces arbitrary colors with system palette entries.
+ *
+ * @author Aditya B
+ */
+
+@import "./variables.css";
+
+/* ── Item styles scoped to the panel component ───────────────────────────── */
+.praescio__panel {
+  /* ── Base item ─────────────────────────────────────────────────────────── */
+  /**
+   * Each list item is a flex row containing an optional icon, a body (label +
+   * description), and an optional badge. The transparent border reserves the
+   * 2px space so that the layout does not shift when the border becomes visible
+   * on keyboard focus / selection.
+   */
+  & .praescio__item {
+    display: flex;
+    align-items: center;
+    gap: var(--praescio-item-gap, 0.5rem);
+    min-height: var(--praescio-item-min-height);
+    padding: var(--praescio-item-padding-y, 0.5rem) var(--praescio-item-padding-x, 0.75rem);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--praescio-font-size);
+    font-weight: var(--praescio-label-weight);
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+    transition: background-color var(--praescio-transition-duration)
+      var(--praescio-transition-easing);
+    /* Transparent border reserves space — prevents layout shift on selection */
+    border: 2px solid transparent;
+    border-radius: calc(var(--praescio-panel-radius) - 2px);
+    margin: 0 2px;
+    width: calc(100% - 4px);
+
+    /* Hover state — only for pointer/mouse; coarse-pointer override is in responsive.css */
+    &:hover {
+      background-color: var(--praescio-item-hover-bg);
+    }
+
+    /* Keyboard-highlighted item (set via JS) or aria-selected="true" (ARIA listbox pattern) */
+    &.praescio__item--highlighted,
+    &[aria-selected="true"] {
+      background-color: var(--praescio-item-active-bg);
+      border-color: var(--praescio-item-active-border);
+    }
+
+    /* Keyboard focus ring — uses box-shadow to avoid changing layout */
+    &:focus-visible {
+      box-shadow: var(--praescio-focus-ring);
+      outline: none;
+    }
+  }
+
+  /* ── Item body ─────────────────────────────────────────────────────────── */
+  /**
+   * Vertical flex column that stacks the label and description. flex: 1 with
+   * min-width: 0 allows long text to truncate via text-overflow rather than
+   * expanding the row width.
+   */
+  & .praescio__item__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* Allow text truncation — without min-width: 0 flex children cannot shrink below content size */
+    min-width: 0;
+    gap: 0.125rem;
+  }
+
+  /* ── Item label ────────────────────────────────────────────────────────── */
+  /**
+   * Primary text of the suggestion. Truncates with an ellipsis when it exceeds
+   * the available inline size.
+   */
+  & .praescio__item__label {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: var(--praescio-label-weight);
+  }
+
+  /* ── Item description ──────────────────────────────────────────────────── */
+  /**
+   * Secondary / subtitle text rendered below the label. Uses the smaller
+   * description font-size and a muted color token.
+   */
+  & .praescio__item__description {
+    display: block;
+    font-size: var(--praescio-description-size);
+    color: var(--praescio-description-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Item badge ────────────────────────────────────────────────────────── */
+  /**
+   * Optional pill/chip displayed at the trailing edge of the item row (e.g. a
+   * category tag or keyboard shortcut hint). margin-inline-start: auto pushes
+   * it to the end of the flex row regardless of content length.
+   */
+  & .praescio__item__badge {
+    margin-inline-start: auto;
+    padding: var(--praescio-badge-padding, 0.125rem 0.375rem);
+    background-color: var(--praescio-badge-bg);
+    color: var(--praescio-badge-color);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── Matched query highlight ───────────────────────────────────────────── */
+  /**
+   * Inline <mark> or <span> element that wraps characters matching the current
+   * query. Color alone conveys the match (background is transparent by default)
+   * so it remains intelligible in all color modes.
+   *
+   * The forced-colors block overrides the OS palette substitution so the
+   * highlight color is preserved using system Highlight / HighlightText values,
+   * which are guaranteed to have sufficient contrast in Windows High Contrast.
+   */
+  & .praescio__highlight {
+    background-color: var(--praescio-highlight-bg);
+    color: var(--praescio-highlight-color);
+    font-weight: var(--praescio-highlight-weight);
+
+    /* Preserve highlight appearance in Windows High Contrast / forced-colors mode */
+    @media (forced-colors: active) {
+      forced-color-adjust: none;
+      color: Highlight;
+      background-color: HighlightText;
+    }
+  }
+}

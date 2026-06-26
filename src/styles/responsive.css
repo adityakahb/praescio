@@ -1,0 +1,138 @@
+/**
+ * @fileoverview Responsive and accessibility media-query overrides for the
+ * Praescio autocomplete component.
+ *
+ * This file contains ONLY conditional rules — every rule is wrapped in a
+ * @media or @supports block. Base (mobile-first) styles live in the other
+ * partial files; this file adjusts them for specific environments:
+ *
+ *   @media (pointer: coarse)                — touch / stylus devices
+ *   @supports (-webkit-touch-callout: none) — iOS Safari input zoom prevention
+ *   @media (prefers-reduced-motion: reduce) — vestibular / motion sensitivity
+ *   @media (forced-colors: active)          — Windows High Contrast Mode
+ *
+ * Rules for component elements are nested inside .praescio__panel so they are
+ * scoped to the component.
+ *
+ * Exception: the @supports (-webkit-touch-callout: none) block targets
+ * [aria-haspopup="listbox"] — the anchor INPUT element that exists outside the
+ * panel in the DOM — so it cannot be scoped under .praescio__panel.
+ *
+ * @author Aditya B
+ */
+
+@import "./variables.css";
+
+/* ── Touch / coarse-pointer devices ──────────────────────────────────────── */
+/**
+ * On touch screens (phones, tablets, stylus displays) hover states can
+ * "stick" after a tap, causing confusing persistent highlights. This block:
+ *   1. Enlarges the tap target height to be generous for finger use.
+ *   2. Removes the hover background so only aria-selected drives visual state.
+ */
+@media (pointer: coarse) {
+  .praescio__panel {
+    & .praescio__item {
+      /* Generous tap target for finger use — max() keeps it at least 2.75rem */
+      min-height: max(var(--praescio-item-min-height), 2.75rem);
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+
+      /* Disable hover background — touch devices have no reliable hover intent */
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+/* ── iOS Safari viewport-zoom prevention ─────────────────────────────────── */
+/**
+ * iOS Safari automatically zooms the viewport when an input with font-size
+ * below 16 px (1 rem) receives focus. This @supports block targets iOS Safari
+ * specifically and ensures any input that triggers the Praescio listbox
+ * (aria-haspopup="listbox") uses at least 1 rem.
+ *
+ * This rule targets [aria-haspopup="listbox"] — the anchor INPUT element that
+ * lives outside .praescio__panel in the DOM. It is intentionally NOT nested
+ * under .praescio__panel because it applies to the consumer's input element,
+ * not to a descendant of the floating panel.
+ *
+ * The actual default is already 1 rem via --praescio-font-size; this rule acts as
+ * a safety net in case a consumer overrides it to a smaller value.
+ */
+@supports (-webkit-touch-callout: none) {
+  [aria-haspopup="listbox"] {
+    font-size: max(1rem, var(--praescio-font-size, 1rem));
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+/**
+ * Respects the user's operating-system preference to reduce or eliminate
+ * animations. Users with vestibular disorders, migraines, or attention
+ * sensitivities may enable this setting.
+ *
+ * Panel animations and item transitions are removed entirely. The spinner
+ * animation stops but the element remains visible as a static ring so loading
+ * state is still communicated without motion.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .praescio__panel {
+    /* Remove panel open/close animation */
+    animation: none;
+    transition: none;
+
+    /* Remove item hover/selection transition */
+    & .praescio__item {
+      transition: none;
+    }
+
+    /* Stop spinner rotation — static ring still indicates loading state */
+    & .praescio__spinner {
+      animation: none;
+      border-top-color: var(--praescio-highlight-color);
+    }
+  }
+}
+
+/* ── Windows High Contrast Mode (forced-colors) ──────────────────────────── */
+/**
+ * In forced-colors mode the OS replaces arbitrary colors with a small system
+ * palette. This block reasserts meaningful visual distinctions using only
+ * the guaranteed system color keywords (ButtonText, Highlight, HighlightText).
+ *
+ * Rules here complement the forced-color-adjust: none on .praescio__highlight
+ * in item.css — that class preserves its own color pair independently.
+ */
+@media (forced-colors: active) {
+  .praescio__panel {
+    /* Strengthen panel border so it is visible against any system background */
+    border: 2px solid ButtonText;
+
+    & .praescio__item {
+      /* Transparent border still reserves layout space */
+      border: 2px solid transparent;
+
+      /* Selected / highlighted item uses system Highlight palette */
+      &.praescio__item--highlighted,
+      &[aria-selected="true"] {
+        border-color: Highlight;
+        background-color: Highlight;
+        color: HighlightText;
+        forced-color-adjust: none;
+      }
+
+      /* Focus ring uses outline (not box-shadow) in forced-colors */
+      &:focus-visible {
+        outline: 2px solid ButtonText;
+        outline-offset: 2px;
+      }
+    }
+
+    /* Divider must use a system color to remain visible */
+    & .praescio__divider {
+      border-top-color: ButtonText;
+    }
+  }
+}

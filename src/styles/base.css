@@ -1,0 +1,151 @@
+/**
+ * @fileoverview Panel shell, listbox, slot, and live-region base styles for
+ * the Praescio autocomplete component.
+ *
+ * All structural rules are nested inside .praescio__panel so that styles are
+ * scoped to the component and cannot bleed into surrounding page elements.
+ * The box-sizing reset is scoped to the panel and its descendants instead of
+ * using a global * selector.
+ *
+ * @keyframes are declared at root level — the CSS spec disallows @keyframes
+ * inside selector rules. The praescio- prefix namespaces them to this component.
+ *
+ * .praescio__live is declared at root level because it is a sibling of the
+ * panel in the DOM (appended near the anchor input), not a descendant.
+ *
+ * @author Aditya B
+ */
+
+/* ── Panel shell ─────────────────────────────────────────────────────────── */
+/**
+ * The outermost floating container. All component styles are nested here so
+ * they are scoped to the component and do not affect the surrounding page.
+ */
+.praescio__panel {
+  /* ── Box-sizing reset scoped to the component ──────────────────────────── */
+  /**
+   * Apply border-box sizing to the panel and every element inside it so
+   * padding and borders do not expand declared widths. Using & here ensures
+   * the reset never touches elements outside .praescio__panel.
+   */
+  &,
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
+
+  /* ── Panel layout ───────────────────────────────────────────────────────── */
+  /**
+   * Positioned absolutely relative to its nearest positioned ancestor (the
+   * anchor input wrapper). z-index ensures it floats above page content.
+   */
+  position: absolute;
+  z-index: var(--praescio-z-index);
+  min-width: var(--praescio-panel-min-width, 12.5rem);
+  max-width: 100vw;
+  background-color: var(--praescio-bg);
+  color: var(--praescio-text-color);
+  border: var(--praescio-border-width) solid var(--praescio-border-color);
+  border-radius: var(--praescio-panel-radius);
+  box-shadow: var(--praescio-panel-shadow);
+  font-family: var(--praescio-font-family);
+  font-size: var(--praescio-font-size);
+  padding: 0;
+  overflow: hidden;
+
+  /* Animate panel opening — slides down from the anchor input */
+  animation: praescio-fade-in var(--praescio-transition-duration) var(--praescio-transition-easing)
+    both;
+
+  /* When placed above the input, reverse the slide direction */
+  &[data-praescio-placement="top"] {
+    animation-name: praescio-fade-in-up;
+  }
+
+  /* ── Listbox ──────────────────────────────────────────────────────────── */
+  /**
+   * Scrollable list of suggestion items (role="listbox"). overflow-y: auto
+   * adds a scrollbar only when content exceeds --praescio-panel-max-height.
+   */
+  & .praescio__list {
+    overflow-y: auto;
+    max-height: var(--praescio-panel-max-height);
+    padding: 0.25rem 0;
+    list-style: none;
+    margin: 0;
+    outline: none;
+  }
+
+  /* ── Panel slots ────────────────────────────────────────────────────────── */
+  /**
+   * Header and footer projection slots for custom content (e.g. a search hint
+   * or a "powered by" footer). Both share padding and type scale with item
+   * descriptions; only the border placement differs.
+   */
+  & .praescio__panel__header,
+  & .praescio__panel__footer {
+    padding: 0.5rem var(--praescio-item-padding-x, 0.75rem);
+    font-size: var(--praescio-description-size);
+    color: var(--praescio-group-label-color);
+    border-bottom: var(--praescio-border-width) solid var(--praescio-border-color);
+  }
+
+  /** Footer slot — border at top rather than bottom */
+  & .praescio__panel__footer {
+    border-bottom: none;
+    border-top: var(--praescio-border-width) solid var(--praescio-border-color);
+  }
+}
+
+/* ── Panel open animation — slides down and fades in ────────────────────── */
+/**
+ * @keyframes must live at root level — the CSS spec forbids @keyframes inside
+ * selector rules. The praescio- prefix scopes the names to this component.
+ */
+@keyframes praescio-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Panel open animation (above anchor) — slides up and fades in ────────── */
+@keyframes praescio-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Screen-reader live region ───────────────────────────────────────────── */
+/**
+ * Declared at root level because .praescio__live is a sibling of the panel
+ * in the DOM, not a descendant — it is appended near the anchor input, outside
+ * the floating .praescio__panel element.
+ *
+ * Visually hidden via the modern clip-path: inset(50%) technique. The legacy
+ * clip property is included as a fallback for older assistive-technology UAs.
+ */
+.praescio__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  /* Legacy fallback — deprecated but supported by older screen-reader UAs */
+  clip: rect(0, 0, 0, 0);
+  /* Modern equivalent — clips the 1px box to nothing */
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}

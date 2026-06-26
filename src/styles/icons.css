@@ -1,0 +1,64 @@
+/**
+ * @fileoverview Icon styles for the Praescio autocomplete component.
+ *
+ * All rules are nested inside .praescio__panel so they are scoped to the
+ * component and cannot affect elements with the same class names elsewhere.
+ *
+ * Two icon variants are supported:
+ *
+ *   .praescio__item__icon     — SVG or icon-font icons embedded as child elements.
+ *                               color: inherit allows the parent item to drive
+ *                               the icon color via currentColor.
+ *
+ *   .praescio__item__icon-img — Raster or external SVG icons loaded as <img>
+ *                               elements. object-fit: contain keeps the aspect
+ *                               ratio intact within the fixed icon box.
+ *
+ * Both variants share the same --praescio-icon-size token so changing one token
+ * resizes all icons consistently.
+ *
+ * @author Aditya B
+ */
+
+@import "./variables.css";
+
+/* ── Icon styles scoped to the panel component ───────────────────────────── */
+.praescio__panel {
+  /* ── SVG / inline icon wrapper ─────────────────────────────────────────── */
+  /**
+   * Flex container that centers its SVG child inside a fixed-size box.
+   * flex-shrink: 0 prevents the icon from being squashed when the item label
+   * is long. color: inherit passes the parent's text color to currentColor so
+   * SVG fills/strokes respond to theme changes automatically.
+   */
+  & .praescio__item__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--praescio-icon-size);
+    height: var(--praescio-icon-size);
+    flex-shrink: 0;
+    color: inherit;
+
+    /** SVG child fills the icon box and is rendered as a block to remove baseline gap */
+    & svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
+
+  /* ── Raster / external image icon ──────────────────────────────────────── */
+  /**
+   * Used when the icon is an <img> element (e.g. a logo PNG or external SVG).
+   * object-fit: contain scales the image to fit inside the icon box without
+   * cropping. border-radius softens square logos.
+   */
+  & .praescio__item__icon-img {
+    width: var(--praescio-icon-size);
+    height: var(--praescio-icon-size);
+    object-fit: contain;
+    border-radius: 2px;
+    display: block;
+  }
+}
